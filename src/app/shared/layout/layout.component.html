@@ -1,1 +1,10 @@
-<router-outlet />
+<mat-toolbar color="primary">
+  <span>TaskFlow</span>
+  <span class="spacer"></span>
+  <span class="username">{{ username }}</span>
+  <button mat-button (click)="logout()">Logout</button>
+</mat-toolbar>
+
+<main class="content">
+  <router-outlet />
+</main>
