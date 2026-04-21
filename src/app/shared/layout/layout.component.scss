@@ -13,3 +13,8 @@
   max-width: 1200px;
   margin: 0 auto;
 }
+
+mat-toolbar {
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+}
