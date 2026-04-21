@@ -1,1 +1,31 @@
-<p>project-list works!</p>
+<div class="project-list">
+  <div class="project-list-header">
+    <h1>My Projects</h1>
+    <button mat-raised-button>
+      <mat-icon>add</mat-icon>
+      New Project
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="spinner-container">
+      <mat-spinner />
+    </div>
+  } @else if (projects().length === 0) {
+    <p class="empty-state">No projects yet. Create your first project!</p>
+  } @else {
+    <div class="project-grid">
+      @for (project of projects(); track project.id) {
+        <mat-card (click)="navigateToDetail(project.id)" class="project-card">
+          <mat-card-header>
+            <mat-card-title>{{ project.name }}</mat-card-title>
+            <mat-card-subtitle>{{ project.createdAt | date:'mediumDate' }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{ project.description ?? 'No description' }}</p>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>
