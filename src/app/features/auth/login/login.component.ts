@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { LoginRequest } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-login',
@@ -43,7 +44,12 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.authService.login(this.form.value).subscribe({
+    const request: LoginRequest = {
+      identifier: this.form.value.identifier,
+      password: this.form.value.password,
+    };
+
+    this.authService.login(request).subscribe({
       next: () => {
         this.router.navigate(['/projects']);
       },
@@ -51,7 +57,7 @@ export class LoginComponent {
         this.isLoading = false;
         const apiError = err.error as ApiError;
         this.errorMessage = apiError.message ?? 'An unexpected error occurred';
-        this.cdr.detectChanges()
+        this.cdr.detectChanges();
       },
     });
   }

@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { RegisterRequest } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -44,7 +45,13 @@ export class RegisterComponent {
     this.isLoading = true;
     this.globalError = null;
 
-    this.authService.register(this.form.value).subscribe({
+    const request: RegisterRequest = {
+      username: this.form.value.username,
+      email: this.form.value.email,
+      password: this.form.value.password
+    };
+
+    this.authService.register(request).subscribe({
       next: () => {
         this.router.navigate(['/projects']);
       },
