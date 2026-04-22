@@ -44,3 +44,23 @@ mat-table {
 mat-chip {
   font-size: 12px;
 }
+
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 16px;
+
+  mat-form-field {
+    width: 150px;
+  }
+}
