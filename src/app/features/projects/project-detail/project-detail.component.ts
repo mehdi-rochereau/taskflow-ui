@@ -7,12 +7,17 @@ import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { Project } from '../../../core/models/project.model';
 import { Task, TaskStatus, TaskPriority } from '../../../core/models/task.model';
 import { TaskService } from '../../../core/services/task.service';
 import { TaskStatusPipe } from '../../../shared/pipes/task-status-pipe';
 import { TaskPriorityPipe } from '../../../shared/pipes/task-priority-pipe';
+import {
+  TaskFormDialogComponent,
+  TaskDialogData,
+} from '../task-form-dialog/task-form-dialog.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
@@ -38,12 +43,13 @@ export class ProjectDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
+  private readonly dialog = inject(MatDialog);
 
   project = signal<Project | null>(null);
   tasks = signal<Task[]>([]);
   isLoading = this.taskService.isLoading;
 
-  displayedColumns = ['title', 'status', 'priority', 'assignee', 'dueDate'];
+  displayedColumns = ['title', 'status', 'priority', 'assignee', 'dueDate', 'actions'];
 
   readonly statuses: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
   readonly priorities: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
@@ -84,6 +90,40 @@ export class ProjectDetailComponent implements OnInit {
     this.selectedPriority.set(priority);
     this.updateQueryParams();
     this.loadTasks(this.project()!.id);
+  }
+
+  openCreateTaskDialog(): void {
+    const dialogRef = this.dialog.open(TaskFormDialogComponent, {
+      width: '600px',
+      data: { projectId: this.project()!.id } as TaskDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.taskService.createTask(this.project()!.id, result).subscribe({
+          next: () => this.loadTasks(this.project()!.id),
+          error: (err) => console.error(err),
+        });
+      }
+    });
+  }
+
+  openEditTaskDialog(event: Event, task: Task): void {
+    event.stopPropagation();
+
+    const dialogRef = this.dialog.open(TaskFormDialogComponent, {
+      width: '600px',
+      data: { task, projectId: this.project()!.id } as TaskDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.taskService.updateTask(this.project()!.id, task.id, result).subscribe({
+          next: () => this.loadTasks(this.project()!.id),
+          error: (err) => console.error(err),
+        });
+      }
+    });
   }
 
   private updateQueryParams(): void {

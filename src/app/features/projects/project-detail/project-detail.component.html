@@ -6,7 +6,7 @@
         <p class="meta">Owner: {{ project()!.ownerUsername }}</p>
         <p class="meta">Created: {{ project()!.createdAt | date:'mediumDate' }}</p>
       </div>
-      <button mat-raised-button>
+      <button mat-raised-button (click)="openCreateTaskDialog()">
         <mat-icon>add</mat-icon>
         New Task
       </button>
@@ -78,6 +78,14 @@
             <mat-cell *matCellDef="let task">{{ task.dueDate ? (task.dueDate | date:'mediumDate') : '—' }}</mat-cell>
           </ng-container>
 
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef></mat-header-cell>
+            <mat-cell *matCellDef="let task">
+              <button mat-icon-button (click)="openEditTaskDialog($event, task)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </mat-cell>
+          </ng-container>
           <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
           <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
 
