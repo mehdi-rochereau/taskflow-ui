@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Project' : 'New Project' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Project name</mat-label>
+      <input matInput formControlName="name" />
+      @if (form.get('name')?.errors?.['required'] && form.get('name')?.touched) {
+        <mat-error>Project name is required</mat-error>
+      } @else if (form.get('name')?.errors?.['maxlength']) {
+        <mat-error>Project name must not exceed {{ form.get('name')?.errors?.['maxlength']?.requiredLength }} characters</mat-error>
+      } @else if (form.get('name')?.errors?.['serverError']) {
+        <mat-error>{{ form.get('name')?.errors?.['serverError'] }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description (optional)</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+      @if (form.get('description')?.errors?.['maxlength']) {
+        <mat-error>Description must not exceed {{ form.get('description')?.errors?.['maxlength']?.requiredLength }} characters</mat-error>      }
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button (click)="onSubmit()">
+    {{ isEditMode ? 'Save' : 'Create' }}
+  </button>
+</mat-dialog-actions>

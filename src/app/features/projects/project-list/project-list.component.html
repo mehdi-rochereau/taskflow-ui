@@ -1,7 +1,7 @@
 <div class="project-list">
   <div class="project-list-header">
     <h1>My Projects</h1>
-    <button mat-raised-button>
+    <button mat-raised-button (click)="openCreateDialog()">
       <mat-icon>add</mat-icon>
       New Project
     </button>
@@ -24,6 +24,12 @@
           <mat-card-content>
             <p>{{ project.description ?? 'No description' }}</p>
           </mat-card-content>
+          <mat-card-actions>
+            <button mat-button (click)="openEditDialog($event, project)">
+              <mat-icon>edit</mat-icon>
+              Edit
+            </button>
+          </mat-card-actions>
         </mat-card>
       }
     </div>
