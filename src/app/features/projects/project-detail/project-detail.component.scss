@@ -11,8 +11,7 @@
   }
 }
 
-.owner,
-.date {
+.meta {
   color: var(--mat-sys-outline);
   font-size: 14px;
   margin: 4px 0;
@@ -30,4 +29,18 @@
 
 .empty-state {
   color: var(--mat-sys-outline);
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+mat-table {
+  width: 100%;
+}
+
+mat-chip {
+  font-size: 12px;
 }

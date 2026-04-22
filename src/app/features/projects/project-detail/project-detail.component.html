@@ -3,9 +3,13 @@
     <div class="project-detail-header">
       <div>
         <h1>{{ project()!.name }}</h1>
-        <p class="owner">Owner: {{ project()!.ownerUsername }}</p>
-        <p class="date">Created: {{ project()!.createdAt | date:'mediumDate' }}</p>
+        <p class="meta">Owner: {{ project()!.ownerUsername }}</p>
+        <p class="meta">Created: {{ project()!.createdAt | date:'mediumDate' }}</p>
       </div>
+      <button mat-raised-button>
+        <mat-icon>add</mat-icon>
+        New Task
+      </button>
     </div>
 
     @if (project()!.description) {
@@ -14,7 +18,48 @@
 
     <div class="tasks-section">
       <h2>Tasks</h2>
-      <p class="empty-state">No tasks yet.</p>
+
+      @if (isLoading()) {
+        <div class="spinner-container">
+          <mat-spinner />
+        </div>
+      } @else if (tasks().length === 0) {
+        <p class="empty-state">No tasks yet. Create your first task!</p>
+      } @else {
+        <mat-table [dataSource]="tasks()">
+
+          <ng-container matColumnDef="title">
+            <mat-header-cell *matHeaderCellDef>Title</mat-header-cell>
+            <mat-cell *matCellDef="let task">{{ task.title }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+            <mat-cell *matCellDef="let task">
+              <mat-chip>{{ task.status | taskStatus }}</mat-chip>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="priority">
+            <mat-header-cell *matHeaderCellDef>Priority</mat-header-cell>
+            <mat-cell *matCellDef="let task">{{ task.priority | taskPriority }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="assignee">
+            <mat-header-cell *matHeaderCellDef>Assignee</mat-header-cell>
+            <mat-cell *matCellDef="let task">{{ task.assigneeUsername ?? 'Unassigned' }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="dueDate">
+            <mat-header-cell *matHeaderCellDef>Due date</mat-header-cell>
+            <mat-cell *matCellDef="let task">{{ task.dueDate ? (task.dueDate | date:'mediumDate') : '—' }}</mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+
+        </mat-table>
+      }
     </div>
   </div>
 }
