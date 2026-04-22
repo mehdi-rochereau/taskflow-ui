@@ -1,1 +1,20 @@
-<p>project-detail works!</p>
+@if (project()) {
+  <div class="project-detail">
+    <div class="project-detail-header">
+      <div>
+        <h1>{{ project()!.name }}</h1>
+        <p class="owner">Owner: {{ project()!.ownerUsername }}</p>
+        <p class="date">Created: {{ project()!.createdAt | date:'mediumDate' }}</p>
+      </div>
+    </div>
+
+    @if (project()!.description) {
+      <p class="description">{{ project()!.description }}</p>
+    }
+
+    <div class="tasks-section">
+      <h2>Tasks</h2>
+      <p class="empty-state">No tasks yet.</p>
+    </div>
+  </div>
+}

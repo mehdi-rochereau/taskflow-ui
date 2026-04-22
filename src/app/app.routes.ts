@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
+import { projectResolver } from './core/resolvers/project-resolver';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,7 @@ export const routes: Routes = [
       },
       {
         path: 'projects/:id',
+        resolve: { project: projectResolver },
         loadComponent: () =>
           import('./features/projects/project-detail/project-detail.component').then(
             (m) => m.ProjectDetailComponent,
