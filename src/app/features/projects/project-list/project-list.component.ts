@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,11 +17,22 @@ import {
   ConfirmDialogData,
 } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from '../../../core/services/notification.service';
+import { MatFormField, MatInput, MatLabel, MatSuffix } from '@angular/material/input';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatProgressSpinnerModule, MatIconModule, DatePipe],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    DatePipe,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatSuffix,
+  ],
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss',
 })
@@ -34,6 +45,13 @@ export class ProjectListComponent implements OnInit {
   projects = signal<Project[]>([]);
   isLoading = this.projectService.isLoading;
   isSubmitting = signal<boolean>(false);
+  searchQuery = signal<string>('');
+
+  filteredProjects = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    if (!query) return this.projects();
+    return this.projects().filter((p) => p.name.toLowerCase().includes(query));
+  });
 
   ngOnInit(): void {
     this.loadProjects();
