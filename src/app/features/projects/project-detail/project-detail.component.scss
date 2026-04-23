@@ -5,12 +5,24 @@
     align-items: flex-start;
     margin-bottom: 24px;
 
+    .header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+      margin-right: 16px;
+    }
+
+    .header-right {
+      flex-shrink: 0;
+    }
+
     h1 {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: calc(100vw - 200px);
+      word-break: break-word;
+      overflow-wrap: break-word;
       padding-top: 10px;
+      min-width: 0;
     }
   }
 }
@@ -45,6 +57,7 @@
 
 mat-table {
   width: 100%;
+  min-width: 600px;
 }
 
 mat-chip {
@@ -83,6 +96,11 @@ mat-chip {
   gap: 8px;
 }
 
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
 .chip-todo {
   background-color: var(--mat-sys-surface-variant) !important;
   color: var(--mat-sys-on-surface-variant) !important;
@@ -112,3 +130,4 @@ mat-chip {
   background-color: var(--mat-sys-error-container) !important;
   color: var(--mat-sys-on-error-container) !important;
 }
+

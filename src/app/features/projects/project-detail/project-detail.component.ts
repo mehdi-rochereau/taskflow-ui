@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -41,6 +41,7 @@ import { NotificationService } from '../../../core/services/notification.service
     TaskPriorityPipe,
     MatProgressSpinner,
     NgClass,
+    RouterLink,
   ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss',
