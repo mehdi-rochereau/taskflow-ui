@@ -18,6 +18,7 @@ import {
 } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from '../../../core/services/notification.service';
 import { MatFormField, MatInput, MatLabel, MatSuffix } from '@angular/material/input';
+import { TaskService } from '../../../core/services/task.service';
 
 @Component({
   selector: 'app-project-list',
@@ -41,6 +42,7 @@ export class ProjectListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly notificationService = inject(NotificationService);
+  private readonly taskService = inject(TaskService);
 
   projects = signal<Project[]>([]);
   isLoading = this.projectService.isLoading;
@@ -53,13 +55,47 @@ export class ProjectListComponent implements OnInit {
     return this.projects().filter((p) => p.name.toLowerCase().includes(query));
   });
 
+  taskCounts = signal<Map<number, number>>(new Map());
+
+  loadTaskCounts(projects: Project[]): void {
+    const counts = new Map<number, number>();
+    let loaded = 0;
+
+    if (projects.length === 0) {
+      this.taskCounts.set(counts);
+      return;
+    }
+
+    projects.forEach((project) => {
+      this.taskService.getTasksByProject(project.id).subscribe({
+        next: (tasks) => {
+          counts.set(project.id, tasks.length);
+          loaded++;
+          if (loaded === projects.length) {
+            this.taskCounts.set(new Map(counts));
+          }
+        },
+        error: () => {
+          counts.set(project.id, 0);
+          loaded++;
+          if (loaded === projects.length) {
+            this.taskCounts.set(new Map(counts));
+          }
+        },
+      });
+    });
+  }
+
   ngOnInit(): void {
     this.loadProjects();
   }
 
   loadProjects(): void {
     this.projectService.getMyProjects().subscribe({
-      next: (data) => this.projects.set(data),
+      next: (data) => {
+        this.projects.set(data);
+        this.loadTaskCounts(data);
+      },
       error: (err) => console.error(err),
     });
   }
