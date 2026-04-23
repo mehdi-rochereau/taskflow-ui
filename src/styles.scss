@@ -37,3 +37,23 @@ body {
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
+
+.snack-success {
+  .mdc-snackbar__surface {
+    background-color: var(--mat-sys-primary) !important;
+    color: var(--mat-sys-on-primary) !important;
+  }
+  button {
+    color: var(--mat-sys-on-primary) !important;
+  }
+}
+
+.snack-error {
+  .mdc-snackbar__surface {
+    background-color: var(--mat-sys-error) !important;
+    color: var(--mat-sys-on-error) !important;
+  }
+  button {
+    color: var(--mat-sys-on-error) !important;
+  }
+}

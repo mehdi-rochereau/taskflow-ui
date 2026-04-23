@@ -16,6 +16,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-project-list',
@@ -28,6 +29,7 @@ export class ProjectListComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
+  private readonly notificationService = inject(NotificationService);
 
   projects = signal<Project[]>([]);
   isLoading = this.projectService.isLoading;
@@ -52,8 +54,13 @@ export class ProjectListComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.projectService.createProject(result).subscribe({
-          next: () => this.loadProjects(),
-          error: (err) => console.error(err),
+          next: () => {
+            this.loadProjects();
+            this.notificationService.success('Project created successfully');
+          },
+          error: (err) => {
+            this.notificationService.error('Failed to create project');
+          },
         });
       }
     });
@@ -70,8 +77,13 @@ export class ProjectListComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.projectService.updateProject(project.id, result).subscribe({
-          next: () => this.loadProjects(),
-          error: (err) => console.error(err),
+          next: () => {
+            this.loadProjects();
+            this.notificationService.success('Project updated successfully');
+          },
+          error: (err) => {
+            this.notificationService.error('Failed to update project');
+          },
         });
       }
     });
@@ -91,8 +103,13 @@ export class ProjectListComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.projectService.deleteProject(project.id).subscribe({
-          next: () => this.loadProjects(),
-          error: (err) => console.error(err),
+          next: () => {
+            this.loadProjects();
+            this.notificationService.success('Project deleted successfully');
+          },
+          error: (err) => {
+            this.notificationService.error('Failed to delete project');
+          },
         });
       }
     });

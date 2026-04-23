@@ -23,6 +23,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-project-detail',
@@ -48,6 +49,7 @@ export class ProjectDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly taskService = inject(TaskService);
   private readonly dialog = inject(MatDialog);
+  private readonly notificationService = inject(NotificationService);
 
   project = signal<Project | null>(null);
   tasks = signal<Task[]>([]);
@@ -105,8 +107,13 @@ export class ProjectDetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.taskService.createTask(this.project()!.id, result).subscribe({
-          next: () => this.loadTasks(this.project()!.id),
-          error: (err) => console.error(err),
+          next: () => {
+            this.notificationService.success('Task created successfully');
+            this.loadTasks(this.project()!.id);
+          },
+          error: (err) => {
+            this.notificationService.error('Failed to create task');
+          },
         });
       }
     });
@@ -123,8 +130,13 @@ export class ProjectDetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.taskService.updateTask(this.project()!.id, task.id, result).subscribe({
-          next: () => this.loadTasks(this.project()!.id),
-          error: (err) => console.error(err),
+          next: () => {
+            this.loadTasks(this.project()!.id)
+            this.notificationService.success('Task updated successfully');
+          },
+          error: (err) => {
+            this.notificationService.error('Failed to update task');
+          },
         });
       }
     });
@@ -144,8 +156,13 @@ export class ProjectDetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.taskService.deleteTask(this.project()!.id, task.id).subscribe({
-          next: () => this.loadTasks(this.project()!.id),
-          error: (err) => console.error(err),
+          next: () => {
+            this.loadTasks(this.project()!.id)
+            this.notificationService.success('Task deleted successfully');
+          },
+          error: (err) => {
+            this.notificationService.error('Failed to delete task');
+          },
         });
       }
     });
