@@ -19,6 +19,8 @@ import {
 import { NotificationService } from '../../../core/services/notification.service';
 import { MatFormField, MatInput, MatLabel, MatSuffix } from '@angular/material/input';
 import { TaskService } from '../../../core/services/task.service';
+import { Task } from '../../../core/models/task.model';
+import { MatProgressBar } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-project-list',
@@ -33,6 +35,7 @@ import { TaskService } from '../../../core/services/task.service';
     MatLabel,
     MatInput,
     MatSuffix,
+    MatProgressBar,
   ],
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss',
@@ -55,35 +58,53 @@ export class ProjectListComponent implements OnInit {
     return this.projects().filter((p) => p.name.toLowerCase().includes(query));
   });
 
-  taskCounts = signal<Map<number, number>>(new Map());
+  tasksByProject = signal<Map<number, Task[]>>(new Map());
 
   loadTaskCounts(projects: Project[]): void {
-    const counts = new Map<number, number>();
+    const map = new Map<number, Task[]>();
     let loaded = 0;
 
     if (projects.length === 0) {
-      this.taskCounts.set(counts);
+      this.tasksByProject.set(map);
       return;
     }
 
     projects.forEach((project) => {
       this.taskService.getTasksByProject(project.id).subscribe({
         next: (tasks) => {
-          counts.set(project.id, tasks.length);
+          map.set(project.id, tasks);
           loaded++;
           if (loaded === projects.length) {
-            this.taskCounts.set(new Map(counts));
+            this.tasksByProject.set(new Map(map));
           }
         },
         error: () => {
-          counts.set(project.id, 0);
+          map.set(project.id, []);
           loaded++;
           if (loaded === projects.length) {
-            this.taskCounts.set(new Map(counts));
+            this.tasksByProject.set(new Map(map));
           }
         },
       });
     });
+  }
+
+  getTaskCount(projectId: number): number {
+    return this.tasksByProject().get(projectId)?.length ?? 0;
+  }
+
+  getDoneCount(projectId: number): number {
+    return (
+      this.tasksByProject()
+        .get(projectId)
+        ?.filter((t) => t.status === 'DONE').length ?? 0
+    );
+  }
+
+  getProgress(projectId: number): number {
+    const total = this.getTaskCount(projectId);
+    if (total === 0) return 0;
+    return (this.getDoneCount(projectId) / total) * 100;
   }
 
   ngOnInit(): void {

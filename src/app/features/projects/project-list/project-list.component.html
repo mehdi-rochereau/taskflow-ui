@@ -47,10 +47,20 @@
           </mat-card-header>
           <mat-card-content>
             <p>{{ project.description ?? 'No description' }}</p>
-            <p class="task-count">
-              <mat-icon>task_alt</mat-icon>
-              {{ taskCounts().get(project.id) ?? 0 }} tasks
-            </p>
+            <div class="task-progress">
+              <div class="task-progress-header">
+      <span class="task-count">
+        <mat-icon>task_alt</mat-icon>
+        {{ getDoneCount(project.id) }}/{{ getTaskCount(project.id) }} tasks done
+      </span>
+              </div>
+              @if (getTaskCount(project.id) > 0) {
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="getProgress(project.id)">
+                </mat-progress-bar>
+              }
+            </div>
           </mat-card-content>
           <mat-card-actions>
             <button mat-button (click)="openEditDialog($event, project)">

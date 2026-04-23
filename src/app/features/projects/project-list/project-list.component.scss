@@ -87,13 +87,22 @@ mat-card-content {
   margin-bottom: 16px;
 }
 
+.task-progress {
+  margin-top: 8px;
+
+  &-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+}
+
 .task-count {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 13px;
   color: var(--mat-sys-outline);
-  margin: 8px 0 0 0;
 
   mat-icon {
     font-size: 16px;
