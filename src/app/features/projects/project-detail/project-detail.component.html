@@ -44,7 +44,7 @@
 
       @if (isLoading()) {
         <div class="spinner-container">
-          <mat-spinner />
+          <mat-spinner/>
         </div>
       } @else if (tasks().length === 0) {
         <p class="empty-state">No tasks found.</p>
@@ -83,6 +83,9 @@
             <mat-cell *matCellDef="let task">
               <button mat-icon-button (click)="openEditTaskDialog($event, task)">
                 <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button style="color: var(--mat-sys-error)" (click)="deleteTask($event, task)">
+                <mat-icon >delete</mat-icon>
               </button>
             </mat-cell>
           </ng-container>

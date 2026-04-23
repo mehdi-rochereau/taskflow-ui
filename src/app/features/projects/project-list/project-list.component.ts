@@ -12,6 +12,10 @@ import {
   ProjectFormDialogComponent,
   ProjectDialogData,
 } from '../project-form-dialog/project-form-dialog.component';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-project-list',
@@ -66,6 +70,27 @@ export class ProjectListComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.projectService.updateProject(project.id, result).subscribe({
+          next: () => this.loadProjects(),
+          error: (err) => console.error(err),
+        });
+      }
+    });
+  }
+
+  deleteProject(event: Event, project: Project): void {
+    event.stopPropagation();
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Project',
+        message: `Are you sure you want to delete "${project.name}" ? This action cannot be undone.`,
+      } as ConfirmDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.projectService.deleteProject(project.id).subscribe({
           next: () => this.loadProjects(),
           error: (err) => console.error(err),
         });

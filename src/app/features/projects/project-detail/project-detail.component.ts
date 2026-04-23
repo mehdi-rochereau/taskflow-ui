@@ -19,6 +19,10 @@ import {
   TaskDialogData,
 } from '../task-form-dialog/task-form-dialog.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-project-detail',
@@ -119,6 +123,27 @@ export class ProjectDetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.taskService.updateTask(this.project()!.id, task.id, result).subscribe({
+          next: () => this.loadTasks(this.project()!.id),
+          error: (err) => console.error(err),
+        });
+      }
+    });
+  }
+
+  deleteTask(event: Event, task: Task): void {
+    event.stopPropagation();
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Task',
+        message: `Are you sure you want to delete "${task.title}" ?`,
+      } as ConfirmDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.taskService.deleteTask(this.project()!.id, task.id).subscribe({
           next: () => this.loadTasks(this.project()!.id),
           error: (err) => console.error(err),
         });
