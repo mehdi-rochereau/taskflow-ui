@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { LoginRequest } from '../../../core/models/auth.model';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,7 @@ import { LoginRequest } from '../../../core/models/auth.model';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
+    MatIcon,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',

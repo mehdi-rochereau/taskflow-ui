@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { RegisterRequest } from '../../../core/models/auth.model';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-register',
@@ -19,6 +20,7 @@ import { RegisterRequest } from '../../../core/models/auth.model';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
+    MatIcon,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
@@ -48,7 +50,7 @@ export class RegisterComponent {
     const request: RegisterRequest = {
       username: this.form.value.username,
       email: this.form.value.email,
-      password: this.form.value.password
+      password: this.form.value.password,
     };
 
     this.authService.register(request).subscribe({

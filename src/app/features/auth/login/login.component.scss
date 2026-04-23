@@ -26,3 +26,20 @@
     margin-bottom: 8px;
   }
 }
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 0 8px 0;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--mat-sys-primary);
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+}
