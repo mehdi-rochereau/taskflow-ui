@@ -63,6 +63,7 @@ export class ProjectDetailComponent implements OnInit {
 
   selectedStatus = signal<TaskStatus | null>(null);
   selectedPriority = signal<TaskPriority | null>(null);
+  isSubmitting = signal<boolean>(false);
 
   ngOnInit(): void {
     const data = this.route.snapshot.data['project'] as Project;
@@ -107,13 +108,16 @@ export class ProjectDetailComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isSubmitting.set(true);
         this.taskService.createTask(this.project()!.id, result).subscribe({
           next: () => {
             this.notificationService.success('Task created successfully');
             this.loadTasks(this.project()!.id);
+            this.isSubmitting.set(false);
           },
           error: (err) => {
             this.notificationService.error('Failed to create task');
+            this.isSubmitting.set(false);
           },
         });
       }
@@ -130,13 +134,16 @@ export class ProjectDetailComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isSubmitting.set(true);
         this.taskService.updateTask(this.project()!.id, task.id, result).subscribe({
           next: () => {
             this.loadTasks(this.project()!.id);
             this.notificationService.success('Task updated successfully');
+            this.isSubmitting.set(false);
           },
           error: (err) => {
             this.notificationService.error('Failed to update task');
+            this.isSubmitting.set(false);
           },
         });
       }
@@ -156,13 +163,16 @@ export class ProjectDetailComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
+        this.isSubmitting.set(true);
         this.taskService.deleteTask(this.project()!.id, task.id).subscribe({
           next: () => {
             this.loadTasks(this.project()!.id);
             this.notificationService.success('Task deleted successfully');
+            this.isSubmitting.set(false);
           },
           error: (err) => {
             this.notificationService.error('Failed to delete task');
+            this.isSubmitting.set(false);
           },
         });
       }

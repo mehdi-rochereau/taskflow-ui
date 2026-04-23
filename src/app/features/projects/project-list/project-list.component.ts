@@ -33,6 +33,7 @@ export class ProjectListComponent implements OnInit {
 
   projects = signal<Project[]>([]);
   isLoading = this.projectService.isLoading;
+  isSubmitting = signal<boolean>(false);
 
   ngOnInit(): void {
     this.loadProjects();
@@ -53,13 +54,16 @@ export class ProjectListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isSubmitting.set(true);
         this.projectService.createProject(result).subscribe({
           next: () => {
             this.loadProjects();
             this.notificationService.success('Project created successfully');
+            this.isSubmitting.set(false);
           },
           error: (err) => {
             this.notificationService.error('Failed to create project');
+            this.isSubmitting.set(false);
           },
         });
       }
@@ -76,13 +80,16 @@ export class ProjectListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isSubmitting.set(true);
         this.projectService.updateProject(project.id, result).subscribe({
           next: () => {
             this.loadProjects();
             this.notificationService.success('Project updated successfully');
+            this.isSubmitting.set(false);
           },
           error: (err) => {
             this.notificationService.error('Failed to update project');
+            this.isSubmitting.set(false);
           },
         });
       }
@@ -102,13 +109,16 @@ export class ProjectListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
+        this.isSubmitting.set(true);
         this.projectService.deleteProject(project.id).subscribe({
           next: () => {
             this.loadProjects();
             this.notificationService.success('Project deleted successfully');
+            this.isSubmitting.set(false);
           },
           error: (err) => {
             this.notificationService.error('Failed to delete project');
+            this.isSubmitting.set(false);
           },
         });
       }

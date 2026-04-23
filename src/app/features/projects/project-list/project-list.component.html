@@ -1,15 +1,21 @@
 <div class="project-list">
   <div class="project-list-header">
     <h1>My Projects</h1>
-    <button mat-raised-button (click)="openCreateDialog()">
+    <button mat-raised-button (click)="openCreateDialog()" [disabled]="isSubmitting()">
+  <span class="btn-content">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="20" />
+    } @else {
       <mat-icon>add</mat-icon>
-      New Project
+    }
+    New Project
+  </span>
     </button>
   </div>
 
   @if (isLoading()) {
     <div class="spinner-container">
-      <mat-spinner />
+      <mat-spinner/>
     </div>
   } @else if (projects().length === 0) {
     <p class="empty-state">No projects yet. Create your first project!</p>
@@ -30,7 +36,7 @@
               Edit
             </button>
             <button mat-button style="color: var(--mat-sys-error)" (click)="deleteProject($event, project)">
-              <mat-icon >delete</mat-icon>
+              <mat-icon>delete</mat-icon>
               Delete
             </button>
           </mat-card-actions>

@@ -6,9 +6,15 @@
         <p class="meta">Owner: {{ project()!.ownerUsername }}</p>
         <p class="meta">Created: {{ project()!.createdAt | date:'mediumDate' }}</p>
       </div>
-      <button mat-raised-button (click)="openCreateTaskDialog()">
-        <mat-icon>add</mat-icon>
-        New Task
+      <button mat-raised-button (click)="openCreateTaskDialog()" [disabled]="isSubmitting()">
+  <span class="btn-content">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="20" />
+    } @else {
+      <mat-icon>add</mat-icon>
+    }
+    New Task
+  </span>
       </button>
     </div>
 
