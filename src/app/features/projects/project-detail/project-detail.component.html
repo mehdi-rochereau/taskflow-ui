@@ -59,13 +59,25 @@
           <ng-container matColumnDef="status">
             <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
             <mat-cell *matCellDef="let task">
-              <mat-chip>{{ task.status | taskStatus }}</mat-chip>
+              <mat-chip [ngClass]="{
+      'chip-todo': task.status === 'TODO',
+      'chip-in-progress': task.status === 'IN_PROGRESS',
+      'chip-done': task.status === 'DONE'
+    }">{{ task.status | taskStatus }}
+              </mat-chip>
             </mat-cell>
           </ng-container>
 
           <ng-container matColumnDef="priority">
             <mat-header-cell *matHeaderCellDef>Priority</mat-header-cell>
-            <mat-cell *matCellDef="let task">{{ task.priority | taskPriority }}</mat-cell>
+            <mat-cell *matCellDef="let task">
+              <mat-chip [ngClass]="{
+      'chip-low': task.priority === 'LOW',
+      'chip-medium': task.priority === 'MEDIUM',
+      'chip-high': task.priority === 'HIGH'
+    }">{{ task.priority | taskPriority }}
+              </mat-chip>
+            </mat-cell>
           </ng-container>
 
           <ng-container matColumnDef="assignee">
@@ -85,7 +97,7 @@
                 <mat-icon>edit</mat-icon>
               </button>
               <button mat-icon-button style="color: var(--mat-sys-error)" (click)="deleteTask($event, task)">
-                <mat-icon >delete</mat-icon>
+                <mat-icon>delete</mat-icon>
               </button>
             </mat-cell>
           </ng-container>

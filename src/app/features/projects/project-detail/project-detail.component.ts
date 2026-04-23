@@ -8,7 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Project } from '../../../core/models/project.model';
 import { Task, TaskStatus, TaskPriority } from '../../../core/models/task.model';
 import { TaskService } from '../../../core/services/task.service';
@@ -40,6 +40,7 @@ import { NotificationService } from '../../../core/services/notification.service
     TaskStatusPipe,
     TaskPriorityPipe,
     MatProgressSpinner,
+    NgClass,
   ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss',
@@ -131,7 +132,7 @@ export class ProjectDetailComponent implements OnInit {
       if (result) {
         this.taskService.updateTask(this.project()!.id, task.id, result).subscribe({
           next: () => {
-            this.loadTasks(this.project()!.id)
+            this.loadTasks(this.project()!.id);
             this.notificationService.success('Task updated successfully');
           },
           error: (err) => {
@@ -157,7 +158,7 @@ export class ProjectDetailComponent implements OnInit {
       if (confirmed) {
         this.taskService.deleteTask(this.project()!.id, task.id).subscribe({
           next: () => {
-            this.loadTasks(this.project()!.id)
+            this.loadTasks(this.project()!.id);
             this.notificationService.success('Task deleted successfully');
           },
           error: (err) => {
