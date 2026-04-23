@@ -37,3 +37,20 @@
   color: var(--mat-sys-outline);
   padding: 48px;
 }
+
+mat-card-title {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 270px;
+}
+
+mat-card-content {
+  p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+}
