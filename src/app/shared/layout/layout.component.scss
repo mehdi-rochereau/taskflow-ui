@@ -18,3 +18,15 @@ mat-toolbar {
   background-color: var(--mat-sys-primary);
   color: var(--mat-sys-on-primary);
 }
+
+.brand {
+  color: var(--mat-sys-on-primary);
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
