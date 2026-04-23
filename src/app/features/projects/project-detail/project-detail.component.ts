@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -57,7 +57,23 @@ export class ProjectDetailComponent implements OnInit {
   tasks = signal<Task[]>([]);
   isLoading = this.taskService.isLoading;
 
-  displayedColumns = ['title', 'status', 'priority', 'assignee', 'dueDate', 'actions'];
+  readonly allColumns = ['title', 'status', 'priority', 'assignee', 'dueDate', 'actions'];
+  readonly mobileColumns = ['title', 'status', 'priority', 'actions'];
+
+  displayedColumns = signal<string[]>(this.allColumns);
+
+  constructor() {
+    this.updateColumns(window.innerWidth);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.updateColumns((event.target as Window).innerWidth);
+  }
+
+  private updateColumns(width: number): void {
+    this.displayedColumns.set(width < 600 ? this.mobileColumns : this.allColumns);
+  }
 
   readonly statuses: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
   readonly priorities: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
