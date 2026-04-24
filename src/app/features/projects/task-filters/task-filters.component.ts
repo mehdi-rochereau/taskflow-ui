@@ -1,13 +1,14 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { TaskStatus, TaskPriority } from '../../../core/models/task.model';
+import { TaskPriority, TaskStatus } from '../../../core/models/task.model';
 import { TaskStatusPipe } from '../../../shared/pipes/task-status-pipe';
 import { TaskPriorityPipe } from '../../../shared/pipes/task-priority-pipe';
 
 @Component({
   selector: 'app-task-filters',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatSelectModule, MatFormFieldModule, TaskStatusPipe, TaskPriorityPipe],
   templateUrl: './task-filters.component.html',
   styleUrl: './task-filters.component.scss',

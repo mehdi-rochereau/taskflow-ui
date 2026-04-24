@@ -10,7 +10,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((err) => {
-      if (err.status === 401) {
+      if (err.status === 401 && !req.url.includes('/auth')) {
         notificationService.error('Session expired, please log in again');
         authService.logout();
       }
