@@ -1,0 +1,55 @@
+:host {
+  display: block;
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding: 16px 0;
+
+  .header-left {
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+
+  .header-center {
+    flex: 1;
+    min-width: 0;
+    padding: 0 16px;
+    text-align: center;
+
+    h1 {
+      word-break: break-word;
+      overflow-wrap: break-word;
+      margin: 0 0 4px 0;
+      line-height: 1.3;
+    }
+
+    .meta {
+      color: var(--mat-sys-outline);
+      font-size: 14px;
+      margin: 4px 0;
+      line-height: 1.5;
+    }
+  }
+
+  .header-right {
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+}
+
+.description {
+  margin-bottom: 24px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

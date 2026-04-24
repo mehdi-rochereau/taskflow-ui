@@ -28,24 +28,24 @@ import {
   TaskDetailDialogComponent,
   TaskDetailDialogData,
 } from '../task-detail-dialog/task-detail-dialog.component';
+import { ProjectHeaderComponent } from '../project-header/project-header.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
   imports: [
-    MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
     MatChipsModule,
     MatSelectModule,
     MatFormFieldModule,
-    DatePipe,
     TaskStatusPipe,
     TaskPriorityPipe,
-    MatProgressSpinner,
     NgClass,
-    RouterLink,
+    ProjectHeaderComponent,
+    MatProgressSpinner,
+    DatePipe,
   ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss',

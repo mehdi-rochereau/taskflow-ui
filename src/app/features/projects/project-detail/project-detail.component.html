@@ -1,31 +1,10 @@
 @if (project()) {
   <div class="project-detail">
-    <div class="project-detail-header">
-      <button mat-icon-button routerLink="/projects">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div>
-        <h1>{{ project()!.name }}</h1>
-        <p class="meta">Owner: {{ project()!.ownerUsername }}</p>
-        <p class="meta">Created: {{ project()!.createdAt | date:'mediumDate' }}</p>
-      </div>
-      <div class="header-right">
-        <button mat-raised-button (click)="openCreateTaskDialog()" [disabled]="isSubmitting()">
-  <span class="btn-content">
-    @if (isSubmitting()) {
-      <mat-spinner diameter="20"/>
-    } @else {
-      <mat-icon>add</mat-icon>
-    }
-    New Task
-  </span>
-        </button>
-      </div>
-    </div>
-
-    @if (project()!.description) {
-      <p class="description">{{ project()!.description }}</p>
-    }
+    <app-project-header
+      [project]="project()!"
+      [isSubmitting]="isSubmitting()"
+      (createTask)="openCreateTaskDialog()">
+    </app-project-header>
 
     <div class="tasks-section">
       <div class="tasks-header">
