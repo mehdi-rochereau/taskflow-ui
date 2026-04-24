@@ -4,25 +4,6 @@
   }
 }
 
-.empty-state {
-  color: var(--mat-sys-outline);
-}
-
-.spinner-container {
-  display: flex;
-  justify-content: center;
-  padding: 48px;
-}
-
-mat-table {
-  width: 100%;
-  min-width: 600px;
-}
-
-mat-chip {
-  font-size: 12px;
-}
-
 .tasks-header {
   display: flex;
   justify-content: space-between;
@@ -35,59 +16,4 @@ mat-chip {
   h2 {
     margin: 0;
   }
-}
-
-.filters {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-
-  mat-form-field {
-    width: 150px;
-    min-width: 120px;
-    flex: 1;
-  }
-}
-
-.table-container {
-  overflow-x: auto;
-  width: 100%;
-}
-
-.clickable-row {
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--mat-sys-surface-variant);
-  }
-}
-
-.chip-todo {
-  background-color: var(--mat-sys-surface-variant) !important;
-  color: var(--mat-sys-on-surface-variant) !important;
-}
-
-.chip-in-progress {
-  background-color: var(--mat-sys-tertiary-container) !important;
-  color: var(--mat-sys-on-tertiary-container) !important;
-}
-
-.chip-done {
-  background-color: var(--mat-sys-secondary-container) !important;
-  color: var(--mat-sys-on-secondary-container) !important;
-}
-
-.chip-low {
-  background-color: var(--mat-sys-surface-variant) !important;
-  color: var(--mat-sys-on-surface-variant) !important;
-}
-
-.chip-medium {
-  background-color: var(--mat-sys-tertiary-container) !important;
-  color: var(--mat-sys-on-tertiary-container) !important;
-}
-
-.chip-high {
-  background-color: var(--mat-sys-error-container) !important;
-  color: var(--mat-sys-on-error-container) !important;
 }

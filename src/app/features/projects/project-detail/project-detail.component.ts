@@ -1,23 +1,13 @@
-import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog } from '@angular/material/dialog';
-import { DatePipe, NgClass } from '@angular/common';
 import { Project } from '../../../core/models/project.model';
 import { Task, TaskPriority, TaskStatus } from '../../../core/models/task.model';
 import { TaskService } from '../../../core/services/task.service';
-import { TaskStatusPipe } from '../../../shared/pipes/task-status-pipe';
-import { TaskPriorityPipe } from '../../../shared/pipes/task-priority-pipe';
 import {
   TaskDialogData,
   TaskFormDialogComponent,
 } from '../task-form-dialog/task-form-dialog.component';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -29,25 +19,12 @@ import {
 } from '../task-detail-dialog/task-detail-dialog.component';
 import { ProjectHeaderComponent } from '../project-header/project-header.component';
 import { TaskFiltersComponent } from '../task-filters/task-filters.component';
+import { TaskTableComponent } from '../task-table/task-table.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    MatTableModule,
-    MatChipsModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    TaskStatusPipe,
-    TaskPriorityPipe,
-    NgClass,
-    ProjectHeaderComponent,
-    MatProgressSpinner,
-    DatePipe,
-    TaskFiltersComponent,
-  ],
+  imports: [ProjectHeaderComponent, TaskFiltersComponent, TaskTableComponent],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss',
 })
@@ -61,24 +38,6 @@ export class ProjectDetailComponent implements OnInit {
   project = signal<Project | null>(null);
   tasks = signal<Task[]>([]);
   isLoading = this.taskService.isLoading;
-
-  readonly allColumns = ['title', 'status', 'priority', 'assignee', 'dueDate', 'actions'];
-  readonly mobileColumns = ['title', 'status', 'priority', 'actions'];
-
-  displayedColumns = signal<string[]>(this.allColumns);
-
-  constructor() {
-    this.updateColumns(window.innerWidth);
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onResize(event: Event): void {
-    this.updateColumns((event.target as Window).innerWidth);
-  }
-
-  private updateColumns(width: number): void {
-    this.displayedColumns.set(width < 600 ? this.mobileColumns : this.allColumns);
-  }
 
   selectedStatus = signal<TaskStatus | null>(null);
   selectedPriority = signal<TaskPriority | null>(null);

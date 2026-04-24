@@ -17,79 +17,13 @@
         </app-task-filters>
       </div>
 
-      @if (isLoading()) {
-        <div class="spinner-container">
-          <mat-spinner/>
-        </div>
-      } @else if (tasks().length === 0) {
-        <p class="empty-state">No tasks found.</p>
-      } @else {
-        <div class="table-container">
-          <mat-table [dataSource]="tasks()">
-
-            <ng-container matColumnDef="title">
-              <mat-header-cell *matHeaderCellDef>Title</mat-header-cell>
-              <mat-cell *matCellDef="let task">{{ task.title }}</mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="status">
-              <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-              <mat-cell *matCellDef="let task">
-                <mat-chip [ngClass]="{
-      'chip-todo': task.status === 'TODO',
-      'chip-in-progress': task.status === 'IN_PROGRESS',
-      'chip-done': task.status === 'DONE'
-    }">{{ task.status | taskStatus }}
-                </mat-chip>
-              </mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="priority">
-              <mat-header-cell *matHeaderCellDef>Priority</mat-header-cell>
-              <mat-cell *matCellDef="let task">
-                <mat-chip [ngClass]="{
-      'chip-low': task.priority === 'LOW',
-      'chip-medium': task.priority === 'MEDIUM',
-      'chip-high': task.priority === 'HIGH'
-    }">{{ task.priority | taskPriority }}
-                </mat-chip>
-              </mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="assignee">
-              <mat-header-cell *matHeaderCellDef>Assignee</mat-header-cell>
-              <mat-cell *matCellDef="let task">{{ task.assigneeUsername ?? 'Unassigned' }}</mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="dueDate">
-              <mat-header-cell *matHeaderCellDef>Due date</mat-header-cell>
-              <mat-cell *matCellDef="let task">{{ task.dueDate ? (task.dueDate | date:'mediumDate') : '—' }}</mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <mat-header-cell *matHeaderCellDef></mat-header-cell>
-              <mat-cell *matCellDef="let task">
-                <button mat-icon-button (click)="openTaskDetailDialog(task); $event.stopPropagation()">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button mat-icon-button (click)="openEditTaskDialog($event, task)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button style="color: var(--mat-sys-error)" (click)="deleteTask($event, task)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </mat-cell>
-            </ng-container>
-            <mat-header-row *matHeaderRowDef="displayedColumns()"></mat-header-row>
-            <mat-row
-              *matRowDef="let row; columns: displayedColumns();"
-              (click)="openTaskDetailDialog(row)"
-              class="clickable-row">
-            </mat-row>
-
-          </mat-table>
-        </div>
-      }
+      <app-task-table
+        [tasks]="tasks()"
+        [isLoading]="isLoading()"
+        (view)="openTaskDetailDialog($event)"
+        (edit)="openEditTaskDialog($event.event, $event.task)"
+        (delete)="deleteTask($event.event, $event.task)">
+      </app-task-table>
     </div>
   </div>
 }
