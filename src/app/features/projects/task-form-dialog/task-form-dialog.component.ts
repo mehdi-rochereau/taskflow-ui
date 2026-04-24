@@ -6,8 +6,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { Task, TaskRequest, TaskStatus, TaskPriority } from '../../../core/models/task.model';
+import { Task, TaskPriority, TaskRequest, TaskStatus } from '../../../core/models/task.model';
+import { getFieldErrors } from '../../../shared/utils/form-errors';
 
 export interface TaskDialogData {
   task?: Task;
@@ -24,7 +24,7 @@ export interface TaskDialogData {
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
-    MatDatepickerModule
+    MatDatepickerModule,
   ],
   templateUrl: './task-form-dialog.component.html',
   styleUrl: './task-form-dialog.component.scss',
@@ -72,17 +72,6 @@ export class TaskFormDialogComponent {
   }
 
   getFieldErrors(field: string): string[] {
-    const control = this.form.get(field);
-    if (!control || !control.errors || !control.touched) return [];
-
-    const messages: string[] = [];
-    const errors = control.errors;
-
-    if (errors['required']) messages.push('This field is required');
-    if (errors['maxlength'])
-      messages.push(`Maximum ${errors['maxlength'].requiredLength} characters`);
-    if (errors['serverError']) messages.push(errors['serverError']);
-
-    return messages;
+    return getFieldErrors(this.form.get(field));
   }
 }

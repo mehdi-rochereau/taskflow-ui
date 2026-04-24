@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Project, ProjectRequest } from '../../../core/models/project.model';
+import { getFieldErrors } from '../../../shared/utils/form-errors';
 
 export interface ProjectDialogData {
   project?: Project;
@@ -24,7 +25,6 @@ export interface ProjectDialogData {
   styleUrl: './project-form-dialog.component.scss',
 })
 export class ProjectFormDialogComponent {
-
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<ProjectFormDialogComponent>);
   readonly data = inject<ProjectDialogData>(MAT_DIALOG_DATA);
@@ -37,6 +37,7 @@ export class ProjectFormDialogComponent {
   });
 
   onSubmit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) return;
 
     const request: ProjectRequest = {
@@ -49,5 +50,9 @@ export class ProjectFormDialogComponent {
 
   onCancel(): void {
     this.dialogRef.close();
+  }
+
+  getFieldErrors(field: string): string[] {
+    return getFieldErrors(this.form.get(field));
   }
 }

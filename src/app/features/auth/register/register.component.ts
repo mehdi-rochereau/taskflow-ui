@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { RegisterRequest } from '../../../core/models/auth.model';
 import { MatIcon } from '@angular/material/icon';
+import { getFieldErrors } from '../../../shared/utils/form-errors';
 
 @Component({
   selector: 'app-register',
@@ -78,20 +79,6 @@ export class RegisterComponent {
   }
 
   getFieldErrors(field: string): string[] {
-    const control = this.form.get(field);
-    if (!control || !control.errors || !control.touched) return [];
-
-    const messages: string[] = [];
-    const errors = control.errors;
-
-    if (errors['required']) messages.push('This field is required');
-    if (errors['minlength'])
-      messages.push(`Minimum ${errors['minlength'].requiredLength} characters`);
-    if (errors['maxlength'])
-      messages.push(`Maximum ${errors['maxlength'].requiredLength} characters`);
-    if (errors['email']) messages.push('Invalid email address');
-    if (errors['serverError']) messages.push(errors['serverError']);
-
-    return messages;
+    return getFieldErrors(this.form.get(field));
   }
 }
