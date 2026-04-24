@@ -52,6 +52,15 @@ export class AuthService {
   }
 
   private hasValidToken(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return false;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expiration = payload.exp * 1000;
+      return Date.now() < expiration;
+    } catch {
+      return false;
+    }
   }
 }
