@@ -24,6 +24,10 @@ import {
   ConfirmDialogData,
 } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from '../../../core/services/notification.service';
+import {
+  TaskDetailDialogComponent,
+  TaskDetailDialogData,
+} from '../task-detail-dialog/task-detail-dialog.component';
 
 @Component({
   selector: 'app-project-detail',
@@ -164,6 +168,13 @@ export class ProjectDetailComponent implements OnInit {
           },
         });
       }
+    });
+  }
+
+  openTaskDetailDialog(task: Task): void {
+    this.dialog.open(TaskDetailDialogComponent, {
+      width: '500px',
+      data: { task } as TaskDetailDialogData,
     });
   }
 

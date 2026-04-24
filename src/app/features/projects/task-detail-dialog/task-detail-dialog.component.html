@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>{{ task.title }}</h2>
+
+<mat-dialog-content>
+  <div class="task-detail">
+
+    <div class="chips-row">
+      <mat-chip [ngClass]="{
+        'chip-todo': task.status === 'TODO',
+        'chip-in-progress': task.status === 'IN_PROGRESS',
+        'chip-done': task.status === 'DONE'
+      }">{{ task.status | taskStatus }}</mat-chip>
+
+      <mat-chip [ngClass]="{
+        'chip-low': task.priority === 'LOW',
+        'chip-medium': task.priority === 'MEDIUM',
+        'chip-high': task.priority === 'HIGH'
+      }">{{ task.priority | taskPriority }}</mat-chip>
+    </div>
+
+    <mat-divider />
+
+    <div class="info-grid">
+      <div class="info-item">
+        <mat-icon>person</mat-icon>
+        <div>
+          <span class="label">Assignee</span>
+          <span>{{ task.assigneeUsername ?? 'Unassigned' }}</span>
+        </div>
+      </div>
+
+      <div class="info-item">
+        <mat-icon>calendar_today</mat-icon>
+        <div>
+          <span class="label">Due date</span>
+          <span>{{ task.dueDate ? (task.dueDate | date:'mediumDate') : '—' }}</span>
+        </div>
+      </div>
+
+      <div class="info-item">
+        <mat-icon>schedule</mat-icon>
+        <div>
+          <span class="label">Created</span>
+          <span>{{ task.createdAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+    </div>
+
+    @if (task.description) {
+      <mat-divider />
+      <div class="description">
+        <span class="label">Description</span>
+        <p>{{ task.description }}</p>
+      </div>
+    }
+
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+</mat-dialog-actions>

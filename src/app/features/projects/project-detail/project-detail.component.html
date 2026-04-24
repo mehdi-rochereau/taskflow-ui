@@ -105,6 +105,9 @@
             <ng-container matColumnDef="actions">
               <mat-header-cell *matHeaderCellDef></mat-header-cell>
               <mat-cell *matCellDef="let task">
+                <button mat-icon-button (click)="openTaskDetailDialog(task); $event.stopPropagation()">
+                  <mat-icon>visibility</mat-icon>
+                </button>
                 <button mat-icon-button (click)="openEditTaskDialog($event, task)">
                   <mat-icon>edit</mat-icon>
                 </button>
@@ -114,7 +117,11 @@
               </mat-cell>
             </ng-container>
             <mat-header-row *matHeaderRowDef="displayedColumns()"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns();"></mat-row>
+            <mat-row
+              *matRowDef="let row; columns: displayedColumns();"
+              (click)="openTaskDetailDialog(row)"
+              class="clickable-row">
+            </mat-row>
 
           </mat-table>
         </div>
