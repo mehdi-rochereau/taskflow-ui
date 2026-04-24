@@ -52,33 +52,3 @@ mat-dialog-content {
     word-break: break-word;
   }
 }
-
-.chip-todo {
-  background-color: var(--mat-sys-surface-variant) !important;
-  color: var(--mat-sys-on-surface-variant) !important;
-}
-
-.chip-in-progress {
-  background-color: var(--mat-sys-tertiary-container) !important;
-  color: var(--mat-sys-on-tertiary-container) !important;
-}
-
-.chip-done {
-  background-color: var(--mat-sys-secondary-container) !important;
-  color: var(--mat-sys-on-secondary-container) !important;
-}
-
-.chip-low {
-  background-color: var(--mat-sys-surface-variant) !important;
-  color: var(--mat-sys-on-surface-variant) !important;
-}
-
-.chip-medium {
-  background-color: var(--mat-sys-tertiary-container) !important;
-  color: var(--mat-sys-on-tertiary-container) !important;
-}
-
-.chip-high {
-  background-color: var(--mat-sys-error-container) !important;
-  color: var(--mat-sys-on-error-container) !important;
-}
