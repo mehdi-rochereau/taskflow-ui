@@ -1,6 +1,5 @@
 import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
@@ -10,13 +9,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog } from '@angular/material/dialog';
 import { DatePipe, NgClass } from '@angular/common';
 import { Project } from '../../../core/models/project.model';
-import { Task, TaskStatus, TaskPriority } from '../../../core/models/task.model';
+import { Task, TaskPriority, TaskStatus } from '../../../core/models/task.model';
 import { TaskService } from '../../../core/services/task.service';
 import { TaskStatusPipe } from '../../../shared/pipes/task-status-pipe';
 import { TaskPriorityPipe } from '../../../shared/pipes/task-priority-pipe';
 import {
-  TaskFormDialogComponent,
   TaskDialogData,
+  TaskFormDialogComponent,
 } from '../task-form-dialog/task-form-dialog.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
@@ -29,6 +28,7 @@ import {
   TaskDetailDialogData,
 } from '../task-detail-dialog/task-detail-dialog.component';
 import { ProjectHeaderComponent } from '../project-header/project-header.component';
+import { TaskFiltersComponent } from '../task-filters/task-filters.component';
 
 @Component({
   selector: 'app-project-detail',
@@ -46,6 +46,7 @@ import { ProjectHeaderComponent } from '../project-header/project-header.compone
     ProjectHeaderComponent,
     MatProgressSpinner,
     DatePipe,
+    TaskFiltersComponent,
   ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss',
@@ -78,9 +79,6 @@ export class ProjectDetailComponent implements OnInit {
   private updateColumns(width: number): void {
     this.displayedColumns.set(width < 600 ? this.mobileColumns : this.allColumns);
   }
-
-  readonly statuses: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
-  readonly priorities: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
 
   selectedStatus = signal<TaskStatus | null>(null);
   selectedPriority = signal<TaskPriority | null>(null);

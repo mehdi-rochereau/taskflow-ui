@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    width: 150px;
+    min-width: 120px;
+    flex: 1;
+  }
+}

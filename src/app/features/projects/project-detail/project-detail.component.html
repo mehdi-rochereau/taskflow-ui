@@ -9,27 +9,12 @@
     <div class="tasks-section">
       <div class="tasks-header">
         <h2>Tasks</h2>
-        <div class="filters">
-          <mat-form-field appearance="outline">
-            <mat-label>Status</mat-label>
-            <mat-select [value]="selectedStatus()" (selectionChange)="onStatusChange($event.value)">
-              <mat-option [value]="null">All</mat-option>
-              @for (status of statuses; track status) {
-                <mat-option [value]="status">{{ status | taskStatus }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Priority</mat-label>
-            <mat-select [value]="selectedPriority()" (selectionChange)="onPriorityChange($event.value)">
-              <mat-option [value]="null">All</mat-option>
-              @for (priority of priorities; track priority) {
-                <mat-option [value]="priority">{{ priority | taskPriority }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
+        <app-task-filters
+          [selectedStatus]="selectedStatus()"
+          [selectedPriority]="selectedPriority()"
+          (statusChange)="onStatusChange($event)"
+          (priorityChange)="onPriorityChange($event)">
+        </app-task-filters>
       </div>
 
       @if (isLoading()) {
