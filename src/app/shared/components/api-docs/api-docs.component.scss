@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+.api-docs-container {
+  height: calc(100vh - 64px);
+  overflow: auto;
+}

@@ -14,6 +14,11 @@ export const routes: Routes = [
       import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
   },
   {
+    path: 'api-docs',
+    loadComponent: () =>
+      import('./shared/components/api-docs/api-docs.component').then((m) => m.ApiDocsComponent),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./shared/layout/layout.component').then((m) => m.LayoutComponent),
