@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
+import { FooterComponent } from './footer/footer.component';
 
 @Component({
   selector: 'app-layout',
@@ -18,6 +19,7 @@ import { AuthService } from '../../core/services/auth.service';
     MatMenuModule,
     MatDividerModule,
     RouterLink,
+    FooterComponent,
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',

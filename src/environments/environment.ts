@@ -1,3 +1,5 @@
 export const environment = {
-  apiUrl: 'http://localhost:8082/api',
+  apiUrl: 'https://ton-domaine.com/api',
+  swaggerUrl: 'https://ton-domaine.com/swagger-ui/index.html',
+  redocUrl: 'https://ton-domaine.com/redoc.html',
 };
