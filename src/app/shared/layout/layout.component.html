@@ -1,8 +1,31 @@
 <mat-toolbar>
   <a routerLink="/projects" class="brand">TaskFlow</a>
   <span class="spacer"></span>
-  <span class="username">{{ username }}</span>
-  <button mat-button (click)="logout()">Logout</button>
+
+  <button mat-button [matMenuTriggerFor]="profileMenu" class="avatar-btn">
+    @if (username()) {
+      <div class="avatar">{{ getInitials() }}</div>
+    } @else {
+      <mat-icon>account_circle</mat-icon>
+    }
+  </button>
+
+  <mat-menu #profileMenu="matMenu" xPosition="before">
+    <div class="menu-header">
+      <div class="menu-avatar">{{ getInitials() }}</div>
+      <div class="menu-info">
+        <span class="menu-username">{{ username() }}</span>
+        <span class="menu-email">{{ email() }}</span>
+      </div>
+    </div>
+
+    <mat-divider />
+
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Logout
+    </button>
+  </mat-menu>
 </mat-toolbar>
 
 <main class="content">
