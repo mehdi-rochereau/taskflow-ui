@@ -1,0 +1,31 @@
+# Dependencies — reinstalled during build
+node_modules
+
+# Angular build output — rebuilt during Docker build
+dist
+.angular
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+SECURITY*.md
+README*.md
+
+# IDE
+.idea
+.vscode
+
+# Environment files — never include secrets in the image
+.env
+.env.*
+*.env
+
+# Test and coverage
+coverage
+
+# OS
+.DS_Store
+Thumbs.db
