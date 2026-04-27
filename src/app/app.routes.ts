@@ -2,6 +2,24 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { projectResolver } from './core/resolvers/project-resolver';
 
+/**
+ * Application route configuration for TaskFlow UI.
+ *
+ * All components are lazy-loaded via `loadComponent` for optimal initial bundle size.
+ *
+ * Route structure:
+ * - `/login` — public, `LoginComponent`
+ * - `/register` — public, `RegisterComponent`
+ * - `/api-docs` — public, `ApiDocsComponent` (Redoc documentation)
+ * - `` (root) — protected by `AuthGuard`, renders `LayoutComponent` as shell
+ *   - `/projects` — `ProjectListComponent`
+ *   - `/projects/:id` — `ProjectDetailComponent`, pre-loaded by `ProjectResolver`
+ *   - `` — redirects to `/projects`
+ * - `**` — wildcard, `NotFoundComponent`
+ *
+ * @see AuthGuard
+ * @see ProjectResolver
+ */
 export const routes: Routes = [
   {
     path: 'login',
