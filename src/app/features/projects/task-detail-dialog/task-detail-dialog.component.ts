@@ -9,10 +9,26 @@ import { Task } from '../../../core/models/task.model';
 import { TaskStatusPipe } from '../../../shared/pipes/task-status-pipe';
 import { TaskPriorityPipe } from '../../../shared/pipes/task-priority-pipe';
 
+/**
+ * Data contract for `TaskDetailDialogComponent`.
+ */
 export interface TaskDetailDialogData {
   task: Task;
 }
 
+/**
+ * Dumb dialog component displaying the full details of a task in read-only mode.
+ *
+ * Displays all task fields: title, status, priority, assignee, due date,
+ * creation date and description. Status and priority are rendered as
+ * color-coded chips using `TaskStatusPipe` and `TaskPriorityPipe`.
+ *
+ * Opened from `TaskTableComponent` on row click or visibility icon click.
+ * Uses `OnPush` change detection — data is injected once and never changes.
+ *
+ * @see TaskTableComponent
+ * @see ProjectDetailComponent
+ */
 @Component({
   selector: 'app-task-detail-dialog',
   standalone: true,
@@ -33,10 +49,14 @@ export interface TaskDetailDialogData {
 })
 export class TaskDetailDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<TaskDetailDialogComponent>);
+
+  /** Dialog data injected via `MAT_DIALOG_DATA`. Contains the task to display. */
   readonly data = inject<TaskDetailDialogData>(MAT_DIALOG_DATA);
 
+  /** The task to display — extracted from dialog data for template convenience. */
   readonly task = this.data.task;
 
+  /** Closes the dialog. */
   close(): void {
     this.dialogRef.close();
   }
