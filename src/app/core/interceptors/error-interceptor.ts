@@ -3,6 +3,23 @@ import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
 
+/**
+ * HTTP interceptor that handles global server-side error responses.
+ *
+ * Intercepts HTTP error responses and displays user-facing notifications
+ * for specific status codes:
+ * - `500 Internal Server Error` — generic server error message
+ * - `429 Too Many Requests` — rate limit exceeded message
+ *
+ * All errors are re-thrown after handling so that individual components
+ * can still react to them if needed.
+ *
+ * Note: `401 Unauthorized` is intentionally not handled here —
+ * it is managed exclusively by `AuthInterceptor` via silent token refresh.
+ *
+ * @see AuthInterceptor
+ * @see NotificationService
+ */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
 
