@@ -1,6 +1,6 @@
 export const environment = {
-  apiUrl: 'https://ton-domaine.com/api',
-  apiBaseUrl: 'https://ton-domaine.com',
-  swaggerUrl: 'https://ton-domaine.com/swagger-ui/index.html',
-  redocUrl: 'https://ton-domaine.com/redoc.html',
+  apiUrl: 'https://api.taskflow.mehdi-rochereau.dev/api',
+  apiBaseUrl: 'https://api.taskflow.mehdi-rochereau.dev',
+  swaggerUrl: 'https://api.taskflow.mehdi-rochereau.dev/swagger-ui/index.html',
+  redocUrl: 'https://api.taskflow.mehdi-rochereau.dev/redoc.html',
 };
