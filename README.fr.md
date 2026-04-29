@@ -2,6 +2,10 @@
 
 > 🇬🇧 [Read in English](README.md)
 
+🌐 **En ligne :** [taskflow.mehdi-rochereau.dev](https://taskflow.mehdi-rochereau.dev)
+
+📖 **Documentation API :** [api.taskflow.mehdi-rochereau.dev/swagger-ui/index.html](https://api.taskflow.mehdi-rochereau.dev/swagger-ui/index.html)
+
 Un frontend de gestion de tâches moderne construit avec Angular 19 et Angular Material,
 consommant l'API REST TaskFlow avec une authentification sécurisée par cookies HttpOnly,
 un rafraîchissement silencieux des tokens et une interface entièrement responsive.
@@ -213,10 +217,9 @@ export const projectResolver: ResolveFn<Project> = (route) => {
 
 ## Améliorations prévues
 
-- [ ] Déploiement Docker + Nginx
 - [ ] CI/CD GitHub Actions
 - [ ] Connexion OAuth2 (Google / GitHub)
-- [ ] `TaskTableComponent` — colonnes triables
+- [ ] `TaskTableComponent` — ajout de colonnes triables
 - [ ] `GET /api/auth/me` — éliminer tout état de session côté client
 - [ ] i18n — internationalisation Angular pour les textes de l'interface
 
@@ -245,5 +248,6 @@ leurs références `@Input()` changent.
 |-------|-------------|
 | [taskflow-ui](https://github.com/mehdi-rochereau/taskflow-ui) | Frontend Angular (ce dépôt) |
 | [taskflow-api](https://github.com/mehdi-rochereau/taskflow-api) | API REST Spring Boot |
+| [taskflow-deploy](https://github.com/mehdi-rochereau/taskflow-deploy) | Docker Compose, Nginx, scripts de déploiement |
 | [SECURITY.fr.md](SECURITY.fr.md) | Politique de sécurité du frontend |
 | [taskflow-api/SECURITY.fr.md](https://github.com/mehdi-rochereau/taskflow-api/blob/main/SECURITY.fr.md) | Politique de sécurité de l'API |
