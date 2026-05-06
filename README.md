@@ -6,13 +6,14 @@
 
 📖 **API Docs:** [api.taskflow.mehdi-rochereau.dev/swagger-ui/index.html](https://api.taskflow.mehdi-rochereau.dev/swagger-ui/index.html)
 
-A modern task management frontend built with Angular 19 and Angular Material,
+A modern task management frontend built with Angular 21 and Angular Material,
 consuming the TaskFlow REST API with secure HttpOnly cookie authentication,
 silent token refresh and a fully responsive interface.
 
-[![Angular](https://img.shields.io/badge/Angular-19-DD0031?style=flat&logo=angular&logoColor=white)](https://angular.dev/)
-[![Angular Material](https://img.shields.io/badge/Angular%20Material-19-757575?style=flat&logo=material-design&logoColor=white)](https://material.angular.io/)
+[![Angular](https://img.shields.io/badge/Angular-21-DD0031?style=flat&logo=angular&logoColor=white)](https://angular.dev/)
+[![Angular Material](https://img.shields.io/badge/Angular%20Material-21-757575?style=flat&logo=material-design&logoColor=white)](https://material.angular.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![CI/CD](https://github.com/mehdi-rochereau/taskflow-ui/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mehdi-rochereau/taskflow-ui/actions/workflows/ci-cd.yml)
 
 ---
 
@@ -29,18 +30,22 @@ For security details, see [SECURITY.md](SECURITY.md).
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Angular 19 |
-| UI Library | Angular Material 19 (Material 3) |
-| Language | TypeScript 5.x |
+| Layer | Technology                                |
+|-------|-------------------------------------------|
+| Framework | Angular 21                                |
+| UI Library | Angular Material 21 (Material 3)          |
+| Language | TypeScript 5.x                            |
 | Styling | SCSS + CSS Variables (Material 3 theming) |
-| State Management | Angular Signals |
-| HTTP | HttpClient + Interceptors |
-| Routing | Angular Router (lazy loading) |
-| Forms | Reactive Forms |
-| API Documentation | Redoc (embedded) |
-| Build Tool | Angular CLI |
+| State Management | Angular Signals                           |
+| HTTP | HttpClient + Interceptors                 |
+| Routing | Angular Router (lazy loading)             |
+| Forms | Reactive Forms                            |
+| API Documentation | Redoc (embedded)                          |
+| Build Tool | Angular CLI                               |
+| CI/CD | GitHub Actions + Docker + Trivy           |
+| Container | Docker + ghcr.io                          |
+| Deployment | Hetzner VPS + Nginx                       |
+| Code Quality | ESLint + Prettier                         |
 
 ---
 
@@ -220,11 +225,11 @@ export const projectResolver: ResolveFn<Project> = (route) => {
 
 ## Planned Improvements
 
-- [ ] GitHub Actions CI/CD
 - [ ] OAuth2 login (Google / GitHub)
 - [ ] `TaskTableComponent` — add sortable columns
 - [ ] `GET /api/auth/me` — eliminate all client-side session state
 - [ ] i18n — Angular internationalization for UI text
+- [ ] Unit tests with Vitest
 
 ---
 
@@ -235,11 +240,31 @@ Tokens are never accessible to JavaScript, significantly reducing XSS risk.
 Angular sends them automatically via `withCredentials: true`.
 
 **Signals over RxJS for component state**
-Angular 19 Signals provide a simpler, more performant alternative to BehaviorSubject
+Angular 21 Signals provide a simpler, more performant alternative to BehaviorSubject
 for local component state while remaining interoperable with Observables.
 
 **OnPush change detection on all dumb components**
 Reduces unnecessary re-renders by only checking components when their `@Input()` references change.
+
+---
+
+## CI/CD Pipeline
+
+Every push triggers an automated pipeline:
+
+| Step | Tool | Details |
+|------|------|---------|
+| Secret scanning | GitLeaks | Full history scan |
+| Code formatting | Prettier | .prettierrc rules |
+| Code quality | ESLint | Angular ESLint rules |
+| Build | Angular CLI | Production build |
+| Dependency CVEs | npm audit | moderate+ severity |
+| Docker image scan | Trivy | Blocks on CRITICAL CVEs |
+| Deployment | SSH + Docker Compose | Hetzner VPS |
+| Health check | Nginx | 2 min retry |
+| Rollback | Automatic | On health check failure |
+
+Push to `main` → CI passes → Docker image built → deployed to production automatically.
 
 ---
 
