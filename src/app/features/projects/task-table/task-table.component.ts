@@ -60,6 +60,9 @@ export class TaskTableComponent {
   /** True while tasks are being loaded — displays a spinner instead of the table. */
   @Input() isLoading = false;
 
+  /** True if a status or priority filter is currently active. */
+  @Input() hasActiveFilter = false;
+
   /** Emitted when the user clicks a task row or the visibility icon. */
   @Output() view = new EventEmitter<Task>();
 

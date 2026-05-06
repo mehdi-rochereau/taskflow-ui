@@ -20,6 +20,7 @@
       <app-task-table
         [tasks]="tasks()"
         [isLoading]="isLoading()"
+        [hasActiveFilter]="selectedStatus() !== null || selectedPriority() !== null"
         (view)="openTaskDetailDialog($event)"
         (edit)="openEditTaskDialog($event.event, $event.task)"
         (delete)="deleteTask($event.event, $event.task)"
