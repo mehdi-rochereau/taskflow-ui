@@ -94,6 +94,9 @@ L'application suit le **pattern Smart/Dumb components** :
 - Dialogs de confirmation pour les actions destructives
 - Page 404 avec route wildcard
 - Prêt pour l'i18n — messages d'erreur API en anglais et français
+- Page d'accueil publique — hero, stack technique, fonctionnalités et guide de démarrage rapide
+- États vides avec actions contextuelles — boutons de création quand aucun projet ou tâche n'existe
+- Retour visuel sur les filtres — état vide distinct quand les filtres ne retournent aucun résultat
 
 ---
 
@@ -198,6 +201,7 @@ export const projectResolver: ResolveFn<Project> = (route) => {
 
 | Chemin | Composant | Guard | Resolver |
 |--------|-----------|-------|----------|
+| `/` | `LandingComponent` | — | — |
 | `/login` | `LoginComponent` | — | — |
 | `/register` | `RegisterComponent` | — | — |
 | `/projects` | `ProjectListComponent` | `AuthGuard` | — |

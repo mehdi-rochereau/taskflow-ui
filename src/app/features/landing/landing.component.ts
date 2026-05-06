@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,10 +9,16 @@ import { AuthService } from '../../core/services/auth.service';
 /**
  * Public landing page displayed at the root route `/`.
  *
- * Presents the TaskFlow project to visitors — stack, features,
- * demo instructions and links to documentation.
+ * Presents the TaskFlow project to visitors — hero section, tech stack,
+ * feature highlights, quick start guide and links to documentation.
  * Accessible without authentication.
  *
+ * On initialization, attempts a silent token refresh to restore the session
+ * from the `refreshToken` HttpOnly cookie if the user was previously authenticated.
+ * If the refresh succeeds, the navbar switches from Sign in / Get started
+ * to a "My Projects" button. If it fails, the page renders normally for guests.
+ *
+ * @see AuthService
  * @see FooterComponent
  */
 @Component({
@@ -23,17 +29,24 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
 })
-export class LandingComponent {
-
+export class LandingComponent implements OnInit {
   private readonly authService = inject(AuthService);
+
+  /** Readonly Signal — true if the user has an active session. Drives the navbar CTA. */
   readonly isAuthenticated = this.authService.isAuthenticated;
 
+  /**
+   * Attempts a silent token refresh on page load to restore the session
+   * from the `refreshToken` HttpOnly cookie.
+   * Errors are silently ignored — the page renders normally for unauthenticated visitors.
+   */
   ngOnInit(): void {
     if (!this.authService.isAuthenticated()) {
       this.authService.refresh().subscribe();
     }
   }
 
+  /** Feature cards displayed in the features section. */
   readonly features = [
     {
       icon: 'lock',
@@ -73,6 +86,10 @@ export class LandingComponent {
     },
   ];
 
+  /**
+   * Tech stack grouped by category — displayed as colored badges in the stack section.
+   * Each entry contains a label and a brand color for the badge background.
+   */
   readonly stack: Record<string, { label: string; color: string }[]> = {
     Frontend: [
       { label: 'Angular 19', color: '#DD0031' },
@@ -112,5 +129,6 @@ export class LandingComponent {
     ],
   };
 
+  /** Ordered list of stack category names for template iteration. */
   readonly stackCategories = Object.keys(this.stack);
 }
