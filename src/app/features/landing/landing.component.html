@@ -1,0 +1,153 @@
+<div class="landing">
+
+  <!-- ── Navbar ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <mat-icon>task_alt</mat-icon>
+      <span>TaskFlow</span>
+    </div>
+    <div class="navbar-actions">
+      @if (isAuthenticated()) {
+        <a mat-raised-button routerLink="/projects">
+          <mat-icon>dashboard</mat-icon>
+          My Projects
+        </a>
+      } @else {
+        <a mat-button routerLink="/login">Sign in</a>
+        <a mat-raised-button routerLink="/register">Get started</a>
+      }
+    </div>
+  </nav>
+
+  <!-- ── Hero ──────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        A full-stack portfolio project<br>
+        built for the real world
+      </h1>
+      <p class="hero-subtitle">
+        TaskFlow demonstrates modern web development practices — secure JWT authentication,
+        CI/CD pipelines, Docker deployment and a production-grade REST API.
+      </p>
+      <div class="hero-actions">
+        <a mat-raised-button routerLink="/register" class="hero-btn-primary">
+          <mat-icon>person_add</mat-icon>
+          Create a free account
+        </a>
+        <a mat-stroked-button routerLink="/login" class="hero-btn-secondary">
+          Sign in
+        </a>
+      </div>
+      <p class="hero-hint">
+        <mat-icon>info</mat-icon>
+        No real email required — use anything@example.com
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Stack ─────────────────────────────────────────── -->
+  <section class="section stack-section">
+    <div class="section-inner">
+      <h2 class="section-title">Tech Stack</h2>
+      <p class="section-subtitle">A production-grade stack across frontend, backend, security and infrastructure</p>
+
+      <div class="stack-grid">
+        @for (category of stackCategories; track category) {
+          <div class="stack-category">
+            <h3 class="stack-category-title">{{ category }}</h3>
+            <div class="stack-badges">
+              @for (item of stack[category]; track item.label) {
+                <span class="badge" [style.background-color]="item.color">
+                  {{ item.label }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <mat-divider />
+
+  <!-- ── Features ──────────────────────────────────────── -->
+  <section class="section features-section">
+    <div class="section-inner">
+      <h2 class="section-title">Features</h2>
+      <p class="section-subtitle">Everything you'd expect from a production application</p>
+
+      <div class="features-grid">
+        @for (feature of features; track feature.title) {
+          <div class="feature-card">
+            <div class="feature-icon">
+              <mat-icon>{{ feature.icon }}</mat-icon>
+            </div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <mat-divider />
+
+  <!-- ── Try it out ─────────────────────────────────────── -->
+  <section class="section try-section">
+    <div class="section-inner try-inner">
+      <div class="try-text">
+        <h2 class="section-title">Try it out</h2>
+        <p>Create a free account in seconds — no real email required.</p>
+        <ul class="try-list">
+          <li>
+            <mat-icon>check_circle</mat-icon>
+            Use any email address — e.g. <code>test@example.com</code>
+          </li>
+          <li>
+            <mat-icon>check_circle</mat-icon>
+            Create projects and tasks immediately after registration
+          </li>
+          <li>
+            <mat-icon>check_circle</mat-icon>
+            Explore the API documentation via Swagger UI or Redoc
+          </li>
+        </ul>
+        <div class="try-actions">
+          <a mat-raised-button routerLink="/register">
+            <mat-icon>person_add</mat-icon>
+            Create an account
+          </a>
+          <a mat-button routerLink="/api-docs">
+            <mat-icon>description</mat-icon>
+            View API docs
+          </a>
+        </div>
+      </div>
+
+      <div class="try-card">
+        <div class="try-card-header">
+          <mat-icon>terminal</mat-icon>
+          Quick start
+        </div>
+        <div class="try-card-body">
+          <p class="try-label">Register</p>
+          <code>POST /api/auth/register</code>
+          <mat-divider />
+          <p class="try-label">Login</p>
+          <code>POST /api/auth/login</code>
+          <mat-divider />
+          <p class="try-label">Create a project</p>
+          <code>POST /api/projects</code>
+          <mat-divider />
+          <p class="try-label">Add tasks</p>
+          <code>POST /api/projects/:id/tasks</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ────────────────────────────────────────── -->
+  <app-footer />
+
+</div>
