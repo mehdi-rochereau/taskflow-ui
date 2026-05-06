@@ -14,12 +14,21 @@
 #   CD build time significantly.
 #
 # Base image: nginx:1.26-alpine
-#   - Alpine 3.20 — minimal OS, no CRITICAL CVEs
+#   - Alpine 3.20 — minimal OS, smaller attack surface
 #   - Nginx 1.26 stable branch — production-grade static file server
-#   - No Node.js in the final image — smaller attack surface
+#   - No Node.js in the final image
+#   - apk upgrade run at build time to pull latest security patches
+#     (fixes CVE-2025-15467 and CVE-2026-31789 in libcrypto3/libssl3)
 # ============================================================
 
 FROM nginx:1.26-alpine
+
+# Update Alpine packages to get latest security patches.
+# nginx:1.26-alpine ships with libcrypto3/libssl3 3.3.3-r0 which contains
+# CVE-2025-15467 (RCE via OpenSSL) and CVE-2026-31789 (heap buffer overflow).
+# apk upgrade pulls the fixed versions (3.3.6-r0 and 3.3.7-r0) from
+# the Alpine 3.20 repository without changing the base image.
+RUN apk update && apk upgrade --no-cache
 
 # Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
@@ -30,8 +39,11 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy Angular production build from CI artifact.
-# In the CD pipeline, the build artifact is downloaded to
-# dist/taskflow-ui/browser/ before the Docker build is invoked.
+# In the CD pipeline, the build artifact is copied to browser-dist/
+# at the repo root before the Docker build is invoked (see ci-cd.yml).
+# This is necessary because Docker buildx sends the build context
+# to an isolated builder daemon — nested paths like dist/taskflow-ui/browser/
+# are not reliably accessible without placing the files at the root.
 COPY browser-dist /usr/share/nginx/html
 
 # Set correct ownership and permissions on static files.
@@ -39,7 +51,9 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chmod -R 755 /usr/share/nginx/html
 
 # Document the application port.
+# EXPOSE is metadata only — actual port mapping is in docker-compose.yml.
 EXPOSE 80
 
 # Start Nginx in foreground — required for Docker.
+# PID 1 receives SIGTERM directly for graceful shutdown.
 CMD ["nginx", "-g", "daemon off;"]
