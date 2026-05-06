@@ -22,7 +22,8 @@
         [isLoading]="isLoading()"
         (view)="openTaskDetailDialog($event)"
         (edit)="openEditTaskDialog($event.event, $event.task)"
-        (delete)="deleteTask($event.event, $event.task)">
+        (delete)="deleteTask($event.event, $event.task)"
+        (createTask)="openCreateTaskDialog()">
       </app-task-table>
     </div>
   </div>

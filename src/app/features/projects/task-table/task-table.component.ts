@@ -27,6 +27,7 @@ import { TaskPriorityPipe } from '../../../shared/pipes/task-priority-pipe';
  * - `view` — clicking a row or the visibility icon
  * - `edit` — clicking the edit icon
  * - `delete` — clicking the delete icon
+ * - `createTask` — clicking "Create your first task" in the empty state
  *
  * Uses `OnPush` change detection — only re-renders when `@Input()` references change.
  *
@@ -68,6 +69,8 @@ export class TaskTableComponent {
   /** Emitted when the user clicks the delete icon. Includes the original click event for stopPropagation. */
   @Output() delete = new EventEmitter<{ event: Event; task: Task }>();
 
+  /** Emitted when the user clicks "Create your first task" in the empty state. */
+  @Output() createTask = new EventEmitter<void>();
   /** Full column set displayed on screens wider than 600px. */
   readonly allColumns = ['title', 'status', 'priority', 'assignee', 'dueDate', 'actions'];
 

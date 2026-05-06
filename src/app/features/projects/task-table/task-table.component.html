@@ -3,7 +3,15 @@
     <mat-spinner/>
   </div>
 } @else if (tasks.length === 0) {
-  <p class="empty-state">No tasks found.</p>
+  <div class="empty-state">
+    <mat-icon>assignment</mat-icon>
+    <h2>No tasks yet</h2>
+    <p>Create your first task to get started</p>
+    <button mat-raised-button (click)="createTask.emit()">
+      <mat-icon>add</mat-icon>
+      Create your first task
+    </button>
+  </div>
 } @else {
   <div class="table-container">
     <mat-table [dataSource]="tasks">
