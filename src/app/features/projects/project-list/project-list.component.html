@@ -2,14 +2,14 @@
   <div class="project-list-header">
     <h1>My Projects</h1>
     <button mat-raised-button (click)="openCreateDialog()" [disabled]="isSubmitting()">
-  <span class="btn-content">
-    @if (isSubmitting()) {
-      <mat-spinner diameter="20" />
-    } @else {
-      <mat-icon>add</mat-icon>
-    }
-    New Project
-  </span>
+      <span class="btn-content">
+        @if (isSubmitting()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>add</mat-icon>
+        }
+        New Project
+      </span>
     </button>
   </div>
   <mat-form-field appearance="outline" class="search-field">
@@ -43,21 +43,19 @@
         <mat-card (click)="navigateToDetail(project.id)" class="project-card">
           <mat-card-header>
             <mat-card-title>{{ project.name }}</mat-card-title>
-            <mat-card-subtitle>{{ project.createdAt | date:'mediumDate' }}</mat-card-subtitle>
+            <mat-card-subtitle>{{ project.createdAt | date: 'mediumDate' }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
             <p>{{ project.description ?? 'No description' }}</p>
             <div class="task-progress">
               <div class="task-progress-header">
-      <span class="task-count">
-        <mat-icon>task_alt</mat-icon>
-        {{ getDoneCount(project.id) }}/{{ getTaskCount(project.id) }} tasks done
-      </span>
+                <span class="task-count">
+                  <mat-icon>task_alt</mat-icon>
+                  {{ getDoneCount(project.id) }}/{{ getTaskCount(project.id) }} tasks done
+                </span>
               </div>
               @if (getTaskCount(project.id) > 0) {
-                <mat-progress-bar
-                  mode="determinate"
-                  [value]="getProgress(project.id)">
+                <mat-progress-bar mode="determinate" [value]="getProgress(project.id)">
                 </mat-progress-bar>
               }
             </div>
@@ -67,7 +65,11 @@
               <mat-icon>edit</mat-icon>
               Edit
             </button>
-            <button mat-button style="color: var(--mat-sys-error)" (click)="deleteProject($event, project)">
+            <button
+              mat-button
+              style="color: var(--mat-sys-error)"
+              (click)="deleteProject($event, project)"
+            >
               <mat-icon>delete</mat-icon>
               Delete
             </button>

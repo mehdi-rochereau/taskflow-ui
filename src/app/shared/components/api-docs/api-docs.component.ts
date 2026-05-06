@@ -47,7 +47,7 @@ export class ApiDocsComponent implements OnInit {
         {},
         this.el.nativeElement.querySelector('#redoc-container'),
       );
-    };;
+    };
     document.head.appendChild(script);
   }
 }
