@@ -12,18 +12,18 @@
 #        health check, rollback, smoke tests
 #
 # Security model:
-#   - GITHUB_TOKEN used for all registry operations
+#   - GITHUB_TOKEN used for all registry operations (no PAT)
 #   - Permissions declared at workflow level (least privilege)
 #   - Secrets: VPS_HOST, VPS_USER, VPS_SSH_KEY
 #
 # Performance:
 #   - npm dependencies cached across runs
-#   - Angular production build artifact reused in CD
+#   - Angular production build artifact reused in CD (no rebuild)
 #   - Docker layers cached via GitHub Actions cache (buildx)
 #
 # Reliability:
 #   - Concurrency control cancels outdated runs on same branch
-#   - Timeout limits prevent runaway jobs
+#   - Timeout limits prevent runaway jobs consuming CI minutes
 #   - Automatic rollback to previous image if health check fails
 #   - Health check retries for 2 minutes after deploy
 # ============================================================
@@ -32,10 +32,14 @@ name: CI/CD
 
 on:
   push:
+    # CI runs on every branch push to catch regressions early
     branches: [ "**" ]
   pull_request:
+    # CI also runs on PRs — CD is skipped for pull_request events
     branches: [ "**" ]
   workflow_dispatch:
+    # Manual trigger — allows forcing a CD deployment from any branch
+    # Useful for hotfixes or testing the pipeline without a code change
     inputs:
       force_deploy:
         description: 'Force deployment to VPS (CD)'
@@ -47,6 +51,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/mehdi-rochereau/taskflow-ui
   NODE_VERSION: '22'
+  # Production UI base URL — used by health check and smoke tests
   UI_BASE_URL: https://taskflow.mehdi-rochereau.dev
 
 # Workflow-level permissions (least privilege principle).
@@ -61,6 +66,8 @@ permissions:
   actions: read
 
 # Cancel any in-progress run on the same branch when a new push arrives.
+# Prevents stale pipeline runs from consuming CI minutes unnecessarily.
+# The group key ensures CI and CD share the same concurrency slot per branch.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -68,9 +75,14 @@ concurrency:
 jobs:
 
   # ── CI ─────────────────────────────────────────────────────
+  # Runs on every push and pull request.
+  # Validates code formatting, linting, build and security
+  # before any artifact is built or deployed.
   ci:
     name: CI
     runs-on: ubuntu-latest
+    # Hard limit — prevents a hung npm install or Angular build
+    # from consuming the full 6-hour GitHub Actions job limit.
     timeout-minutes: 20
 
     steps:
@@ -79,9 +91,15 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
+          # fetch-depth: 0 fetches full git history.
+          # Required by GitLeaks to scan all commits, not just HEAD.
+          # Without this, GitLeaks only sees the latest commit.
           fetch-depth: 0
 
       # ── Secret scanning ──────────────────────────────────
+      # GitLeaks scans the full commit history for accidentally
+      # committed secrets (API keys, passwords, tokens).
+      # Runs before any build step to fail fast on security issues.
       - name: Scan for secrets with GitLeaks
         id: gitleaks
         uses: gitleaks/gitleaks-action@v2
@@ -89,6 +107,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ── Node.js setup ────────────────────────────────────
+      # Node.js 22 LTS — same version as the Dockerfile builder stage.
+      # Ensures consistency between CI and Docker build environments.
+      # setup-node handles PATH configuration automatically.
       - name: Set up Node.js ${{ env.NODE_VERSION }}
         id: node
         uses: actions/setup-node@v4
@@ -96,6 +117,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       # ── npm cache ────────────────────────────────────────
+      # Caches the npm module cache between runs.
+      # The cache key includes a hash of package-lock.json —
+      # if dependencies change, the cache is invalidated automatically.
+      # restore-keys provides a fallback to the most recent cache
+      # if no exact match is found (partial cache hit).
+      # This saves ~1-2 minutes per run when dependencies haven't changed.
       - name: Cache npm dependencies
         uses: actions/cache@v4
         with:
@@ -104,21 +131,46 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
 
       # ── Install dependencies ──────────────────────────────
+      # npm ci installs exact versions from package-lock.json.
+      # Faster and more reproducible than npm install.
+      # --ignore-scripts prevents malicious postinstall scripts
+      # from executing during dependency installation.
       - name: Install dependencies
         id: install
         run: npm ci --ignore-scripts
 
       # ── Prettier ─────────────────────────────────────────
+      # Checks that all TypeScript, HTML and SCSS source files
+      # follow the formatting rules defined in .prettierrc:
+      # printWidth: 100, singleQuote: true, angular HTML parser.
+      # --check mode exits with error if any file is not formatted.
+      # Developers should run: npx prettier --write "src/**/*.{ts,html,scss}"
       - name: Check code formatting with Prettier
         id: prettier
         run: npm run format:check
 
       # ── ESLint ───────────────────────────────────────────
+      # Runs Angular ESLint rules defined in eslint.config.js.
+      # Installed via: ng add @angular-eslint/schematics
+      # Catches TypeScript anti-patterns and Angular-specific issues:
+      # - @typescript-eslint/no-explicit-any — avoids losing type safety
+      # - @typescript-eslint/no-empty-function — avoids silent error swallowing
+      # - Angular template rules — component selectors, lifecycle hooks
       - name: Run ESLint
         id: lint
         run: npm run lint
 
       # ── Build ────────────────────────────────────────────
+      # Compiles the Angular application for production.
+      # --configuration production enables:
+      #   - Tree shaking — removes unused code (dead code elimination)
+      #   - AOT compilation — Ahead-of-Time, catches template errors at build time
+      #   - Minification and bundling — reduces bundle size
+      #   - Output hashing — cache busting (main.abc123.js)
+      #   - Source map generation — for production debugging if needed
+      # Output goes to dist/taskflow-ui/browser/ (Angular 17+ browser output dir).
+      # The build artifact is uploaded and reused by the CD job —
+      # avoiding a second npm install + build in the Docker phase.
       - name: Build Angular app for production
         id: build
         run: npm run build -- --configuration production
@@ -128,15 +180,22 @@ jobs:
         with:
           name: taskflow-ui-dist
           path: dist/taskflow-ui/browser/
+          # 7 days — long enough for manual CD trigger after CI completes
           retention-days: 7
 
       # ── npm audit ────────────────────────────────────────
+      # Scans npm dependencies for known vulnerabilities.
+      # --audit-level=moderate fails on moderate and above (CVSS >= 4).
+      # continue-on-error: true — audit is informational for now.
+      # npm audit fix was run to resolve known issues (see package-lock.json).
       - name: Run npm audit
         id: audit
         run: npm run audit
         continue-on-error: true
 
       # ── GitHub Actions Step Summary ──────────────────────
+      # Generates a markdown summary table visible in the Actions UI.
+      # Uses ternary expressions on step outcomes for status icons.
       - name: Generate CI summary
         if: always()
         run: |
@@ -152,10 +211,19 @@ jobs:
           echo "| 🔒 npm audit | ${{ steps.audit.outcome == 'success' && '✅ No vulnerabilities' || '⚠️ Check report' }} |" >> $GITHUB_STEP_SUMMARY
 
   # ── CD ─────────────────────────────────────────────────────
+  # Runs only on push to main or manual workflow_dispatch with
+  # force_deploy enabled. Never runs on pull requests.
+  # Depends on CI passing (needs: ci).
+  #
+  # Flow: download build → copy to browser-dist → docker build →
+  #       trivy scan → push to ghcr.io → deploy VPS →
+  #       health check → rollback if needed → smoke tests
   cd:
     name: CD
     runs-on: ubuntu-latest
     needs: ci
+    # Hard limit — prevents a stuck SSH session or Docker push
+    # from consuming the full job timeout.
     timeout-minutes: 15
     if: |
       github.event_name != 'pull_request' &&
@@ -167,10 +235,15 @@ jobs:
     steps:
 
       # ── Checkout ─────────────────────────────────────────
+      # Required for Docker build context (Dockerfile.cd, nginx.conf).
+      # Angular build itself is downloaded from CI artifact below.
       - name: Checkout source code
         uses: actions/checkout@v4
 
       # ── Download build from CI ────────────────────────────
+      # Downloads the Angular production build artifact from CI.
+      # Avoids running npm install + ng build again in CD —
+      # the exact same build that passed CI checks is packaged.
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -178,10 +251,19 @@ jobs:
           path: dist/taskflow-ui/browser/
 
       # ── Setup Buildx ─────────────────────────────────────
+      # Initializes Docker buildx with the docker-container driver.
+      # Required to enable GitHub Actions cache (type=gha) for
+      # Docker layer caching. The default docker driver does not
+      # support external cache backends.
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       # ── Docker login ─────────────────────────────────────
+      # Authenticates to GitHub Container Registry using GITHUB_TOKEN.
+      # No PAT (Personal Access Token) required — GITHUB_TOKEN has
+      # packages: write permission declared at the workflow level.
+      # The package must have the repository added in "Manage Actions access"
+      # under the package settings on GitHub.
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -190,6 +272,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # ── Docker metadata ──────────────────────────────────
+      # Generates OCI-compliant image tags and labels automatically:
+      # - sha-<short-commit>: immutable tag for traceability
+      # - latest: mutable tag for docker compose pull on the VPS
+      # Labels include source repo, commit SHA, build date.
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -199,7 +285,29 @@ jobs:
             type=sha,prefix=sha-
             type=raw,value=latest
 
+      # ── Prepare build for Docker ──────────────────────────
+      # Copies the Angular build to the repo root as browser-dist/.
+      # Docker buildx sends the build context to the builder daemon,
+      # which resolves paths relative to the context root.
+      # dist/taskflow-ui/browser/ is not reliably accessible from
+      # the buildx daemon context — copying to root solves this.
+      # Dockerfile.cd then uses: COPY browser-dist /usr/share/nginx/html
+      - name: Prepare build for Docker
+        run: cp -r dist/taskflow-ui/browser ./browser-dist
+
       # ── Docker build & push ──────────────────────────────
+      # Builds the runtime Docker image using Dockerfile.cd.
+      # Dockerfile.cd is a minimal runtime-only image — it does NOT
+      # run npm or compile Angular. It simply copies the pre-built
+      # static files into an nginx:alpine image.
+      #
+      # cache-from/cache-to: reuses Docker layer cache from previous runs
+      # via GitHub Actions cache storage. Layers that haven't changed
+      # (nginx base, config copy) are not re-downloaded or re-executed.
+      #
+      # provenance: false disables SLSA provenance attestation.
+      # Enabled by default in buildx but causes digest resolution issues
+      # with private registries in some Trivy scan configurations.
       - name: Build and push Docker image
         id: build
         uses: docker/build-push-action@v6
@@ -214,6 +322,13 @@ jobs:
           provenance: false
 
       # ── Trivy scan ───────────────────────────────────────
+      # Scans the pushed Docker image for OS and library vulnerabilities.
+      # Scans the image by digest (immutable) rather than tag (mutable)
+      # to ensure the exact pushed image is scanned, not a cached version.
+      # ignore-unfixed: true skips CVEs with no available fix —
+      # reporting them would be noise with no actionable remediation.
+      # severity: CRITICAL — blocks deployment on critical CVEs only.
+      # No continue-on-error — a CRITICAL CVE stops the deployment.
       - name: Scan Docker image with Trivy
         id: trivy
         uses: aquasecurity/trivy-action@master
@@ -237,6 +352,15 @@ jobs:
           retention-days: 7
 
       # ── Deploy VPS ───────────────────────────────────────
+      # Connects to the production VPS via SSH and deploys the new image.
+      # Before pulling the new image, the current container's image
+      # reference is saved to /tmp/taskflow_ui_rollback.env.
+      # This allows the rollback step to restore the previous version
+      # if the health check fails after deployment.
+      #
+      # VPS setup: Ubuntu 24.04 on Hetzner CPX22, Docker + Nginx + SSL.
+      # SSH key: dedicated Ed25519 key generated for GitHub Actions only,
+      # stored as VPS_SSH_KEY secret, added to authorized_keys on VPS.
       - name: Deploy to VPS
         id: deploy
         uses: appleboy/ssh-action@v1
@@ -253,6 +377,10 @@ jobs:
             echo "✅ taskflow-ui deployed"
 
       # ── Health check ─────────────────────────────────────
+      # Polls the frontend URL every 10 seconds for up to 2 minutes (12 attempts).
+      # Nginx serves the Angular app — HTTP 200 means the container
+      # is running and serving static files correctly.
+      # 2 minutes is sufficient for Nginx — no JVM startup or DB migration.
       - name: Health check
         id: health
         run: |
@@ -270,6 +398,11 @@ jobs:
           exit 1
 
       # ── Rollback on failure ──────────────────────────────
+      # Triggered only if the health check step failed (not skipped).
+      # Reads the previous image reference saved before deployment
+      # and restores it by re-tagging and restarting the container.
+      # This ensures the production UI is never left in a broken state
+      # after a failed deployment.
       - name: Rollback on health check failure
         if: failure() && steps.health.outcome == 'failure'
         uses: appleboy/ssh-action@v1
@@ -291,6 +424,12 @@ jobs:
             fi
 
       # ── Smoke tests ──────────────────────────────────────
+      # Verifies that key endpoints respond correctly after deploy.
+      # Tests two endpoints:
+      # - / : Angular app served by Nginx (follows redirect with -L)
+      # - /actuator/health : API still accessible and healthy
+      # Both must return HTTP 200 for the smoke test to pass.
+      # This confirms Nginx, SSL termination, and the API are all working.
       - name: Smoke test public endpoints
         id: smoke
         run: |
@@ -310,6 +449,9 @@ jobs:
           fi
 
       # ── CD Summary ───────────────────────────────────────
+      # Generates a deployment summary visible in the Actions UI.
+      # Includes image digest for traceability — links a deployment
+      # to the exact immutable image that was pushed and deployed.
       - name: Generate CD summary
         if: always()
         run: |

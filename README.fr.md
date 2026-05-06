@@ -6,13 +6,14 @@
 
 📖 **Documentation API :** [api.taskflow.mehdi-rochereau.dev/swagger-ui/index.html](https://api.taskflow.mehdi-rochereau.dev/swagger-ui/index.html)
 
-Un frontend de gestion de tâches moderne construit avec Angular 19 et Angular Material,
+Un frontend de gestion de tâches moderne construit avec Angular 21 et Angular Material,
 consommant l'API REST TaskFlow avec une authentification sécurisée par cookies HttpOnly,
 un rafraîchissement silencieux des tokens et une interface entièrement responsive.
 
-[![Angular](https://img.shields.io/badge/Angular-19-DD0031?style=flat&logo=angular&logoColor=white)](https://angular.dev/)
-[![Angular Material](https://img.shields.io/badge/Angular%20Material-19-757575?style=flat&logo=material-design&logoColor=white)](https://material.angular.io/)
+[![Angular](https://img.shields.io/badge/Angular-21-DD0031?style=flat&logo=angular&logoColor=white)](https://angular.dev/)
+[![Angular Material](https://img.shields.io/badge/Angular%20Material-21-757575?style=flat&logo=material-design&logoColor=white)](https://material.angular.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![CI/CD](https://github.com/mehdi-rochereau/taskflow-ui/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mehdi-rochereau/taskflow-ui/actions/workflows/ci-cd.yml)
 
 ---
 
@@ -29,18 +30,22 @@ Pour les détails de sécurité, voir [SECURITY.fr.md](SECURITY.fr.md).
 
 ## Stack technique
 
-| Couche | Technologie |
-|--------|-------------|
-| Framework | Angular 19 |
-| UI Library | Angular Material 19 (Material 3) |
-| Langage | TypeScript 5.x |
+| Couche | Technologie                             |
+|--------|-----------------------------------------|
+| Framework | Angular 21                              |
+| UI Library | Angular Material 21 (Material 3)        |
+| Langage | TypeScript 5.x                          |
 | Styles | SCSS + Variables CSS (thème Material 3) |
-| Gestion d'état | Angular Signals |
-| HTTP | HttpClient + Intercepteurs |
-| Routing | Angular Router (lazy loading) |
-| Formulaires | Reactive Forms |
-| Documentation API | Redoc (intégré) |
-| Build | Angular CLI |
+| Gestion d'état | Angular Signals                         |
+| HTTP | HttpClient + Intercepteurs              |
+| Routing | Angular Router (lazy loading)           |
+| Formulaires | Reactive Forms                          |
+| Documentation API | Redoc (intégré)                         |
+| Build | Angular CLI                             |
+| CI/CD | GitHub Actions + Docker + Trivy |
+| Conteneur | Docker + ghcr.io |
+| Déploiement | Hetzner VPS + Nginx |
+| Qualité du code | ESLint + Prettier |
 
 ---
 
@@ -221,11 +226,11 @@ export const projectResolver: ResolveFn<Project> = (route) => {
 
 ## Améliorations prévues
 
-- [ ] CI/CD GitHub Actions
 - [ ] Connexion OAuth2 (Google / GitHub)
 - [ ] `TaskTableComponent` — ajout de colonnes triables
 - [ ] `GET /api/auth/me` — éliminer tout état de session côté client
 - [ ] i18n — internationalisation Angular pour les textes de l'interface
+- [ ] Tests unitaires avec Vitest
 
 ---
 
@@ -236,13 +241,33 @@ Les tokens ne sont jamais accessibles au JavaScript, réduisant significativemen
 le risque XSS. Angular les envoie automatiquement via `withCredentials: true`.
 
 **Signals plutôt que RxJS pour l'état des composants**
-Les Signals Angular 19 offrent une alternative plus simple et plus performante
+Les Signals Angular 21 offrent une alternative plus simple et plus performante
 aux BehaviorSubject pour l'état local des composants, tout en restant
 interopérables avec les Observables.
 
 **Détection de changements OnPush sur tous les composants Dumb**
 Réduit les re-rendus inutiles en ne vérifiant les composants que lorsque
 leurs références `@Input()` changent.
+
+---
+
+## Pipeline CI/CD
+
+Chaque push déclenche un pipeline automatisé :
+
+| Étape | Outil | Détails |
+|-------|-------|---------|
+| Scan de secrets | GitLeaks | Historique complet |
+| Formatage du code | Prettier | Règles .prettierrc |
+| Qualité du code | ESLint | Règles Angular ESLint |
+| Build | Angular CLI | Build de production |
+| CVE dépendances | npm audit | Sévérité moderate+ |
+| Scan image Docker | Trivy | Bloque sur CVE CRITICAL |
+| Déploiement | SSH + Docker Compose | VPS Hetzner |
+| Health check | Nginx | 2 min de retry |
+| Rollback | Automatique | En cas d'échec health check |
+
+Push sur `main` → CI vert → image Docker buildée → déployée en production automatiquement.
 
 ---
 

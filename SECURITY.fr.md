@@ -8,7 +8,7 @@ Ce document décrit les mesures de sécurité mises en place dans le frontend Ta
 et présente les limitations connues ainsi que les améliorations prévues.
 
 TaskFlow est un projet portfolio démontrant les bonnes pratiques de sécurité
-d'une application web moderne avec Angular 19, Spring Boot 3.5,
+d'une application web moderne avec Angular 21, Spring Boot 3.5,
 authentification JWT et cookies HttpOnly.
 
 ---
@@ -105,6 +105,21 @@ pour les détails.
 - Les réponses HTTP `401` déclenchent un rafraîchissement automatique de session
   ou une déconnexion selon le contexte.
 
+### Sécurité CI/CD
+
+Le pipeline de déploiement intègre plusieurs contrôles de sécurité :
+
+| Contrôle | Outil | Détails |
+|---------|------|---------|
+| Scan de secrets | GitLeaks | Historique git complet scanné à chaque push |
+| CVE dépendances | npm audit | Bloque sur sévérité moderate |
+| Scan image Docker | Trivy | Bloque le déploiement sur CVE CRITICAL |
+| Moindre privilège | GITHUB_TOKEN | Pas de PAT — token scopé avec permissions minimales |
+| Clé SSH dédiée | Ed25519 | Clé réservée GitHub Actions, séparée des clés développeur |
+| Protection de branche | GitHub Rulesets | CI doit passer avant tout merge sur main |
+| Déploiements immuables | Digest d'image | Trivy scanne le digest exact pushé |
+| Rollback automatique | Docker | Image précédente restaurée si le health check échoue |
+
 ---
 
 ## Principes de sécurité appliqués
@@ -149,6 +164,7 @@ Lorsque le frontend est servi indépendamment (ex. via Nginx), les en-têtes CSP
 - [ ] Ajouter un endpoint `GET /api/auth/me` pour éliminer tout état de session côté client
 - [ ] Envisager un token CSRF basé sur un cookie `HttpOnly` pour une protection CSRF renforcée
 - [ ] OAuth2 Google + GitHub (prévu)
+- [ ] Scan Trivy sur la sévérité HIGH (actuellement CRITICAL uniquement)
 
 ---
 

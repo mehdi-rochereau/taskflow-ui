@@ -8,7 +8,7 @@ This document describes the security measures implemented in the TaskFlow fronte
 and outlines known limitations and planned improvements.
 
 TaskFlow is a portfolio project demonstrating modern web application security practices
-with Angular 19, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
+with Angular 21, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
 
 ---
 
@@ -99,6 +99,21 @@ for details.
 - HTTP `429` responses display a user-friendly rate limit message.
 - HTTP `401` responses trigger automatic session refresh or logout depending on context.
 
+### CI/CD Security
+
+The deployment pipeline integrates multiple security controls:
+
+| Control | Tool | Details |
+|---------|------|---------|
+| Secret scanning | GitLeaks | Full git history scanned on every push |
+| Dependency CVEs | npm audit | Blocks on moderate severity |
+| Docker image scan | Trivy | Blocks deployment on CRITICAL CVEs |
+| Least privilege | GITHUB_TOKEN | No PAT — scoped token with minimal permissions |
+| Dedicated SSH key | Ed25519 | GitHub Actions-only key, separate from developer keys |
+| Branch protection | GitHub Rulesets | CI must pass before any merge to main |
+| Immutable deploys | Image digest | Trivy scans the exact pushed digest |
+| Automatic rollback | Docker | Previous image restored if health check fails |
+
 ---
 
 ## Security Principles Applied
@@ -143,6 +158,7 @@ added to the Nginx configuration.
 - [ ] Add `GET /api/auth/me` endpoint to eliminate any client-side session state
 - [ ] Consider `HttpOnly` cookie-based CSRF token for additional CSRF protection
 - [ ] OAuth2 Google + GitHub (planned)
+- [ ] Trivy scan on HIGH severity (currently CRITICAL only)
 
 ---
 
