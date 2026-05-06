@@ -13,13 +13,13 @@
 #   This Dockerfile skips compilation entirely, reducing the
 #   CD build time significantly.
 #
-# Base image: nginx:1.26
-#   - Debian-based LTS — well-maintained, frequent security patches
+# Base image: nginx:1.26-alpine
+#   - Alpine 3.20 — minimal OS, no CRITICAL CVEs
 #   - Nginx 1.26 stable branch — production-grade static file server
 #   - No Node.js in the final image — smaller attack surface
 # ============================================================
 
-FROM nginx:1.26
+FROM nginx:1.26-alpine
 
 # Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
@@ -35,7 +35,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY dist/taskflow-ui/browser /usr/share/nginx/html
 
 # Set correct ownership and permissions on static files.
-RUN chown -R www-data:www-data /usr/share/nginx/html && \
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chmod -R 755 /usr/share/nginx/html
 
 # Document the application port.
