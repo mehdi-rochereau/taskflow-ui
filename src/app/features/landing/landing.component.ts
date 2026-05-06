@@ -24,8 +24,16 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './landing.component.scss',
 })
 export class LandingComponent {
+
   private readonly authService = inject(AuthService);
   readonly isAuthenticated = this.authService.isAuthenticated;
+
+  ngOnInit(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.authService.refresh().subscribe();
+    }
+  }
+
   readonly features = [
     {
       icon: 'lock',
