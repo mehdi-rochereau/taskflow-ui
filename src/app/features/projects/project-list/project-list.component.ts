@@ -130,7 +130,7 @@ export class ProjectListComponent implements OnInit {
         projects.forEach((p, i) => map.set(p.id, results[i]));
         this.tasksByProject.set(map);
       },
-      error: () => {},
+      error: () => { /* errors handled globally by HTTP interceptor */ },
     });
   }
 
