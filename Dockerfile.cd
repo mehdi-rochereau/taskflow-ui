@@ -13,13 +13,13 @@
 #   This Dockerfile skips compilation entirely, reducing the
 #   CD build time significantly.
 #
-# Base image: nginx:stable
-#   - Debian-based — well-maintained, frequent security patches
-#   - Nginx stable — production-grade static file server
+# Base image: nginx:1.26
+#   - Debian-based LTS — well-maintained, frequent security patches
+#   - Nginx 1.26 stable branch — production-grade static file server
 #   - No Node.js in the final image — smaller attack surface
 # ============================================================
 
-FROM nginx:stable
+FROM nginx:1.26
 
 # Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
