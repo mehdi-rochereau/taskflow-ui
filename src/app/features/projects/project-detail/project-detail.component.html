@@ -3,7 +3,8 @@
     <app-project-header
       [project]="project()!"
       [isSubmitting]="isSubmitting()"
-      (createTask)="openCreateTaskDialog()">
+      (createTask)="openCreateTaskDialog()"
+    >
     </app-project-header>
 
     <div class="tasks-section">
@@ -13,7 +14,8 @@
           [selectedStatus]="selectedStatus()"
           [selectedPriority]="selectedPriority()"
           (statusChange)="onStatusChange($event)"
-          (priorityChange)="onPriorityChange($event)">
+          (priorityChange)="onPriorityChange($event)"
+        >
         </app-task-filters>
       </div>
 
@@ -24,7 +26,8 @@
         (view)="openTaskDetailDialog($event)"
         (edit)="openEditTaskDialog($event.event, $event.task)"
         (delete)="deleteTask($event.event, $event.task)"
-        (createTask)="openCreateTaskDialog()">
+        (createTask)="openCreateTaskDialog()"
+      >
       </app-task-table>
     </div>
   </div>

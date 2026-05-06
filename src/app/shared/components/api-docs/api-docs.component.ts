@@ -41,6 +41,7 @@ export class ApiDocsComponent implements OnInit {
     const script = document.createElement('script');
     script.src = 'redoc.standalone.js';
     script.onload = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any)['Redoc'].init(
         this.specUrl,
         {},

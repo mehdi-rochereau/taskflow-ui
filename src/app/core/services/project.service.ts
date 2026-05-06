@@ -43,9 +43,7 @@ export class ProjectService {
    */
   getMyProjects(): Observable<Project[]> {
     this._isLoading.set(true);
-    return this.http
-      .get<Project[]>(this.apiUrl)
-      .pipe(finalize(() => this._isLoading.set(false)));
+    return this.http.get<Project[]>(this.apiUrl).pipe(finalize(() => this._isLoading.set(false)));
   }
 
   /**

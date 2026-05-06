@@ -1,6 +1,6 @@
 @if (isLoading) {
   <div class="spinner-container">
-    <mat-spinner/>
+    <mat-spinner />
   </div>
 } @else if (tasks.length === 0) {
   @if (hasActiveFilter) {
@@ -23,7 +23,6 @@
 } @else {
   <div class="table-container">
     <mat-table [dataSource]="tasks">
-
       <ng-container matColumnDef="title">
         <mat-header-cell *matHeaderCellDef>Title</mat-header-cell>
         <mat-cell *matCellDef="let task">{{ task.title }}</mat-cell>
@@ -32,11 +31,13 @@
       <ng-container matColumnDef="status">
         <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
         <mat-cell *matCellDef="let task">
-          <mat-chip [ngClass]="{
-            'chip-todo': task.status === 'TODO',
-            'chip-in-progress': task.status === 'IN_PROGRESS',
-            'chip-done': task.status === 'DONE'
-          }">{{ task.status | taskStatus }}
+          <mat-chip
+            [ngClass]="{
+              'chip-todo': task.status === 'TODO',
+              'chip-in-progress': task.status === 'IN_PROGRESS',
+              'chip-done': task.status === 'DONE',
+            }"
+            >{{ task.status | taskStatus }}
           </mat-chip>
         </mat-cell>
       </ng-container>
@@ -44,11 +45,13 @@
       <ng-container matColumnDef="priority">
         <mat-header-cell *matHeaderCellDef>Priority</mat-header-cell>
         <mat-cell *matCellDef="let task">
-          <mat-chip [ngClass]="{
-            'chip-low': task.priority === 'LOW',
-            'chip-medium': task.priority === 'MEDIUM',
-            'chip-high': task.priority === 'HIGH'
-          }">{{ task.priority | taskPriority }}
+          <mat-chip
+            [ngClass]="{
+              'chip-low': task.priority === 'LOW',
+              'chip-medium': task.priority === 'MEDIUM',
+              'chip-high': task.priority === 'HIGH',
+            }"
+            >{{ task.priority | taskPriority }}
           </mat-chip>
         </mat-cell>
       </ng-container>
@@ -61,7 +64,7 @@
       <ng-container matColumnDef="dueDate">
         <mat-header-cell *matHeaderCellDef>Due date</mat-header-cell>
         <mat-cell *matCellDef="let task">
-          {{ task.dueDate ? (task.dueDate | date:'mediumDate') : '—' }}
+          {{ task.dueDate ? (task.dueDate | date: 'mediumDate') : '—' }}
         </mat-cell>
       </ng-container>
 
@@ -74,8 +77,11 @@
           <button mat-icon-button (click)="edit.emit({ event: $event, task })">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-icon-button style="color: var(--mat-sys-error)"
-                  (click)="delete.emit({ event: $event, task })">
+          <button
+            mat-icon-button
+            style="color: var(--mat-sys-error)"
+            (click)="delete.emit({ event: $event, task })"
+          >
             <mat-icon>delete</mat-icon>
           </button>
         </mat-cell>
@@ -83,11 +89,11 @@
 
       <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
       <mat-row
-        *matRowDef="let row; columns: displayedColumns;"
+        *matRowDef="let row; columns: displayedColumns"
         (click)="view.emit(row)"
-        class="clickable-row">
+        class="clickable-row"
+      >
       </mat-row>
-
     </mat-table>
   </div>
 }

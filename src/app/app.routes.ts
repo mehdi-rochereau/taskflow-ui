@@ -25,37 +25,36 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./features/landing/landing.component').then(m => m.LandingComponent),
+      import('./features/landing/landing.component').then((m) => m.LandingComponent),
     pathMatch: 'full',
   },
   {
     path: 'login',
     loadComponent: () =>
-      import('./features/auth/login/login.component').then(m => m.LoginComponent),
+      import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
     path: 'register',
     loadComponent: () =>
-      import('./features/auth/register/register.component').then(m => m.RegisterComponent),
+      import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
   },
   {
     path: 'api-docs',
     loadComponent: () =>
-      import('./shared/components/api-docs/api-docs.component').then(m => m.ApiDocsComponent),
+      import('./shared/components/api-docs/api-docs.component').then((m) => m.ApiDocsComponent),
   },
 
   // ── Protected routes ───────────────────────────────────
   {
     path: '',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./shared/layout/layout.component').then(m => m.LayoutComponent),
+    loadComponent: () => import('./shared/layout/layout.component').then((m) => m.LayoutComponent),
     children: [
       {
         path: 'projects',
         loadComponent: () =>
           import('./features/projects/project-list/project-list.component').then(
-            m => m.ProjectListComponent,
+            (m) => m.ProjectListComponent,
           ),
       },
       {
@@ -63,7 +62,7 @@ export const routes: Routes = [
         resolve: { project: projectResolver },
         loadComponent: () =>
           import('./features/projects/project-detail/project-detail.component').then(
-            m => m.ProjectDetailComponent,
+            (m) => m.ProjectDetailComponent,
           ),
       },
     ],
@@ -73,6 +72,6 @@ export const routes: Routes = [
   {
     path: '**',
     loadComponent: () =>
-      import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent),
+      import('./shared/components/not-found/not-found.component').then((m) => m.NotFoundComponent),
   },
 ];

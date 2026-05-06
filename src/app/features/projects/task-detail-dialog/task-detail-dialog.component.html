@@ -2,19 +2,24 @@
 
 <mat-dialog-content>
   <div class="task-detail">
-
     <div class="chips-row">
-      <mat-chip [ngClass]="{
-        'chip-todo': task.status === 'TODO',
-        'chip-in-progress': task.status === 'IN_PROGRESS',
-        'chip-done': task.status === 'DONE'
-      }">{{ task.status | taskStatus }}</mat-chip>
+      <mat-chip
+        [ngClass]="{
+          'chip-todo': task.status === 'TODO',
+          'chip-in-progress': task.status === 'IN_PROGRESS',
+          'chip-done': task.status === 'DONE',
+        }"
+        >{{ task.status | taskStatus }}</mat-chip
+      >
 
-      <mat-chip [ngClass]="{
-        'chip-low': task.priority === 'LOW',
-        'chip-medium': task.priority === 'MEDIUM',
-        'chip-high': task.priority === 'HIGH'
-      }">{{ task.priority | taskPriority }}</mat-chip>
+      <mat-chip
+        [ngClass]="{
+          'chip-low': task.priority === 'LOW',
+          'chip-medium': task.priority === 'MEDIUM',
+          'chip-high': task.priority === 'HIGH',
+        }"
+        >{{ task.priority | taskPriority }}</mat-chip
+      >
     </div>
 
     <mat-divider />
@@ -32,7 +37,7 @@
         <mat-icon>calendar_today</mat-icon>
         <div>
           <span class="label">Due date</span>
-          <span>{{ task.dueDate ? (task.dueDate | date:'mediumDate') : '—' }}</span>
+          <span>{{ task.dueDate ? (task.dueDate | date: 'mediumDate') : '—' }}</span>
         </div>
       </div>
 
@@ -40,7 +45,7 @@
         <mat-icon>schedule</mat-icon>
         <div>
           <span class="label">Created</span>
-          <span>{{ task.createdAt | date:'mediumDate' }}</span>
+          <span>{{ task.createdAt | date: 'mediumDate' }}</span>
         </div>
       </div>
     </div>
@@ -52,7 +57,6 @@
         <p>{{ task.description }}</p>
       </div>
     }
-
   </div>
 </mat-dialog-content>
 
