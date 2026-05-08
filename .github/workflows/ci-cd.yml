@@ -8,7 +8,7 @@
 #
 # Jobs:
 #   ci → gitleaks, install, prettier, lint, build, npm audit
-#   cd → docker build, trivy scan, push ghcr.io, deploy VPS,
+#   cd → docker build, trivy scan, block on CRITICAL CVE, deploy VPS,
 #        health check, rollback, smoke tests
 #
 # Security model:
@@ -36,7 +36,7 @@ on:
     branches: [ "**" ]
   pull_request:
     # CI also runs on PRs — CD is skipped for pull_request events
-    branches: [ "**" ]
+    branches: [ "main" ]
   workflow_dispatch:
     # Manual trigger — allows forcing a CD deployment from any branch
     # Useful for hotfixes or testing the pipeline without a code change
@@ -216,8 +216,8 @@ jobs:
   # Depends on CI passing (needs: ci).
   #
   # Flow: download build → copy to browser-dist → docker build →
-  #       trivy scan → push to ghcr.io → deploy VPS →
-  #       health check → rollback if needed → smoke tests
+  #       trivy scan → upload report → block on CRITICAL CVE →
+  #       deploy VPS → health check → rollback if needed → smoke tests
   cd:
     name: CD
     runs-on: ubuntu-latest
@@ -328,14 +328,17 @@ jobs:
       # ignore-unfixed: true skips CVEs with no available fix —
       # reporting them would be noise with no actionable remediation.
       # severity: CRITICAL — blocks deployment on critical CVEs only.
-      # No continue-on-error — a CRITICAL CVE stops the deployment.
+      # exit-code: 0 — Trivy always generates the report file.
+      # Blocking is handled by the "Block on CRITICAL CVE" step below,
+      # which reads the report and exits 1 if CRITICAL is found.
+      # This ensures the report is always uploaded even when CVEs are found.
       - name: Scan Docker image with Trivy
         id: trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
           format: 'table'
-          exit-code: '1'
+          exit-code: '0'
           ignore-unfixed: true
           severity: 'CRITICAL'
           output: trivy-report.txt
@@ -350,6 +353,16 @@ jobs:
           name: trivy-report
           path: trivy-report.txt
           retention-days: 7
+
+      - name: Block on CRITICAL CVE
+        run: |
+          if grep -q "CRITICAL" trivy-report.txt; then
+            echo "❌ CRITICAL CVE detected — blocking deployment"
+            cat trivy-report.txt
+            exit 1
+          else
+            echo "✅ No CRITICAL CVE detected"
+          fi
 
       # ── Deploy VPS ───────────────────────────────────────
       # Connects to the production VPS via SSH and deploys the new image.
