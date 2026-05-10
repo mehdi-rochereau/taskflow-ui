@@ -1,0 +1,11 @@
+h2[mat-dialog-title] {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+mat-dialog-content {
+  p {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+}
