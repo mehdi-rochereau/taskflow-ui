@@ -56,3 +56,11 @@ mat-chip {
     background-color: var(--mat-sys-surface-variant);
   }
 }
+
+.cell-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  display: block;
+}

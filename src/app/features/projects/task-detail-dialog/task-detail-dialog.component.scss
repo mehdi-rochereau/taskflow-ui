@@ -1,17 +1,15 @@
-mat-dialog-content {
-  padding-top: 8px;
-}
-
 .task-detail {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-width: 400px;
+  min-width: 0;
+  width: 100%;
 }
 
 .chips-row {
   display: flex;
   gap: 8px;
+  margin-top: 8px;
 }
 
 .info-grid {
@@ -45,10 +43,27 @@ mat-dialog-content {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
+  width: 100%;
 
   p {
     margin: 0;
     white-space: pre-wrap;
     word-break: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
   }
+}
+
+.dialog-title {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  margin: 0 0 16px 0;
+  font: var(--mat-sys-headline-small);
+  color: var(--mat-sys-on-surface);
+}
+
+mat-dialog-content {
+  overflow-x: hidden;
+  max-height: calc(90vh - 80px);
 }

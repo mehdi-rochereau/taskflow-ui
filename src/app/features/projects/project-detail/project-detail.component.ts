@@ -195,7 +195,10 @@ export class ProjectDetailComponent implements OnInit {
    */
   openTaskDetailDialog(task: Task): void {
     this.dialog.open(TaskDetailDialogComponent, {
-      width: '500px',
+      width: '90vw',
+      maxWidth: '700px',
+      maxHeight: '90vh',
+      autoFocus: false,
       data: { task } as TaskDetailDialogData,
     });
   }

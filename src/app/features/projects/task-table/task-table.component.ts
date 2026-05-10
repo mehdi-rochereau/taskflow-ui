@@ -75,7 +75,7 @@ export class TaskTableComponent {
   /** Emitted when the user clicks "Create your first task" in the empty state. */
   @Output() createTask = new EventEmitter<void>();
   /** Full column set displayed on screens wider than 600px. */
-  readonly allColumns = ['title', 'status', 'priority', 'assignee', 'dueDate', 'actions'];
+  readonly allColumns = ['title', 'status', 'priority', 'dueDate', 'actions'];
 
   /** Reduced column set displayed on screens narrower than 600px. */
   readonly mobileColumns = ['title', 'status', 'priority', 'actions'];
