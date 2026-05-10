@@ -14,8 +14,7 @@
       <mat-icon>assignment</mat-icon>
       <h2>No tasks yet</h2>
       <p>Create your first task to get started</p>
-      <button mat-raised-button (click)="createTask.emit()">
-        <mat-icon>add</mat-icon>
+      <button mat-flat-button color="primary" (click)="createTask.emit()">
         Create your first task
       </button>
     </div>
@@ -25,7 +24,9 @@
     <mat-table [dataSource]="tasks">
       <ng-container matColumnDef="title">
         <mat-header-cell *matHeaderCellDef>Title</mat-header-cell>
-        <mat-cell *matCellDef="let task">{{ task.title }}</mat-cell>
+        <mat-cell *matCellDef="let task">
+          <span class="cell-title" [title]="task.title">{{ task.title }}</span>
+        </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="status">

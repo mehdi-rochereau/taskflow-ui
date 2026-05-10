@@ -1,6 +1,5 @@
-<h2 mat-dialog-title>{{ task.title }}</h2>
-
 <mat-dialog-content>
+  <h2 class="dialog-title">{{ task.title }}</h2>
   <div class="task-detail">
     <div class="chips-row">
       <mat-chip
@@ -9,8 +8,8 @@
           'chip-in-progress': task.status === 'IN_PROGRESS',
           'chip-done': task.status === 'DONE',
         }"
-        >{{ task.status | taskStatus }}</mat-chip
-      >
+      >{{ task.status | taskStatus }}
+      </mat-chip>
 
       <mat-chip
         [ngClass]="{
@@ -18,7 +17,8 @@
           'chip-medium': task.priority === 'MEDIUM',
           'chip-high': task.priority === 'HIGH',
         }"
-        >{{ task.priority | taskPriority }}</mat-chip
+      >{{ task.priority | taskPriority }}
+      </mat-chip
       >
     </div>
 

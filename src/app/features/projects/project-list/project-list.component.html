@@ -1,7 +1,7 @@
 <div class="project-list">
   <div class="project-list-header">
     <h1>My Projects</h1>
-    <button mat-raised-button (click)="openCreateDialog()" [disabled]="isSubmitting()">
+    <button mat-flat-button color="primary" (click)="openCreateDialog()" [disabled]="isSubmitting()">
       <span class="btn-content">
         @if (isSubmitting()) {
           <mat-spinner diameter="20" />
@@ -32,8 +32,7 @@
       <mat-icon>folder_open</mat-icon>
       <h2>No projects yet</h2>
       <p>Create your first project to get started</p>
-      <button mat-raised-button (click)="openCreateDialog()">
-        <mat-icon>add</mat-icon>
+      <button mat-flat-button color="primary" (click)="openCreateDialog()">
         Create your first project
       </button>
     </div>
@@ -42,7 +41,9 @@
       @for (project of filteredProjects(); track project.id) {
         <mat-card (click)="navigateToDetail(project.id)" class="project-card">
           <mat-card-header>
-            <mat-card-title>{{ project.name }}</mat-card-title>
+            <mat-card-title>
+              <span class="card-title-text">{{ project.name }}</span>
+            </mat-card-title>
             <mat-card-subtitle>{{ project.createdAt | date: 'mediumDate' }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>

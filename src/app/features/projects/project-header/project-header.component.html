@@ -4,7 +4,7 @@
       <mat-icon>arrow_back</mat-icon>
     </button>
     <div class="header-right">
-      <button mat-raised-button (click)="createTask.emit()" [disabled]="isSubmitting">
+      <button mat-flat-button color="primary" (click)="createTask.emit()" [disabled]="isSubmitting">
         <span class="btn-content">
           @if (isSubmitting) {
             <mat-spinner diameter="20" />
