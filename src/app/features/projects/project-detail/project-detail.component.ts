@@ -218,7 +218,7 @@ export class ProjectDetailComponent implements OnInit {
       width: '400px',
       data: {
         title: 'Delete Task',
-        message: `Are you sure you want to delete "${task.title}" ?`,
+        message: `Are you sure you want to delete "${task.title}" ? This action cannot be undone.`,
       } as ConfirmDialogData,
     });
 
