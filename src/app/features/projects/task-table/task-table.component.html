@@ -56,11 +56,6 @@
         </mat-cell>
       </ng-container>
 
-      <ng-container matColumnDef="assignee">
-        <mat-header-cell *matHeaderCellDef>Assignee</mat-header-cell>
-        <mat-cell *matCellDef="let task">{{ task.assigneeUsername ?? 'Unassigned' }}</mat-cell>
-      </ng-container>
-
       <ng-container matColumnDef="dueDate">
         <mat-header-cell *matHeaderCellDef>Due date</mat-header-cell>
         <mat-cell *matCellDef="let task">

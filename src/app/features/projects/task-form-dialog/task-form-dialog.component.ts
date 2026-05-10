@@ -73,7 +73,6 @@ export class TaskFormDialogComponent {
     status: [this.data?.task?.status ?? 'TODO', Validators.required],
     priority: [this.data?.task?.priority ?? 'MEDIUM', Validators.required],
     dueDate: [this.data?.task?.dueDate ?? null],
-    assigneeId: [null],
   });
 
   /**
@@ -95,7 +94,6 @@ export class TaskFormDialogComponent {
       dueDate: formValue.dueDate
         ? new Date(formValue.dueDate).toISOString().split('T')[0]
         : undefined,
-      assigneeId: formValue.assigneeId || undefined,
     };
 
     this.dialogRef.close(request);
