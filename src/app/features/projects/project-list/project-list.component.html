@@ -1,7 +1,12 @@
 <div class="project-list">
   <div class="project-list-header">
     <h1>My Projects</h1>
-    <button mat-flat-button color="primary" (click)="openCreateDialog()" [disabled]="isSubmitting()">
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openCreateDialog()"
+      [disabled]="isSubmitting()"
+    >
       <span class="btn-content">
         @if (isSubmitting()) {
           <mat-spinner diameter="20" />

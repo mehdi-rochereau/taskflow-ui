@@ -8,7 +8,7 @@
           'chip-in-progress': task.status === 'IN_PROGRESS',
           'chip-done': task.status === 'DONE',
         }"
-      >{{ task.status | taskStatus }}
+        >{{ task.status | taskStatus }}
       </mat-chip>
 
       <mat-chip
@@ -17,9 +17,8 @@
           'chip-medium': task.priority === 'MEDIUM',
           'chip-high': task.priority === 'HIGH',
         }"
-      >{{ task.priority | taskPriority }}
-      </mat-chip
-      >
+        >{{ task.priority | taskPriority }}
+      </mat-chip>
     </div>
 
     <mat-divider />
