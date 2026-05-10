@@ -20,6 +20,7 @@ export function getFieldErrors(control: AbstractControl | null): string[] {
     messages.push(`Maximum ${errors['maxlength'].requiredLength} characters`);
   if (errors['email']) messages.push('Invalid email address');
   if (errors['serverError']) messages.push(errors['serverError']);
+  if (errors['passwordMismatch']) messages.push('Passwords do not match');
 
   return messages;
 }

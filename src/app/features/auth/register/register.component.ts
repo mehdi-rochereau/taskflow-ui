@@ -1,5 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -12,15 +20,46 @@ import { MatIcon } from '@angular/material/icon';
 import { getFieldErrors } from '../../../shared/utils/form-errors';
 
 /**
+ * Custom group-level validator that checks whether `password` and `confirmPassword` match.
+ * Applies `{ passwordMismatch: true }` directly on the `confirmPassword` control
+ * so that `mat-error` can display the error message via `getFieldErrors`.
+ * Clears the error when passwords match.
+ *
+ * @returns A `ValidatorFn` to be applied at the `FormGroup` level
+ */
+function passwordMatchValidator(): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const password = group.get('password')?.value;
+    const confirm = group.get('confirmPassword')?.value;
+
+    if (password !== confirm) {
+      group.get('confirmPassword')?.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    }
+
+    // Retire l'erreur si les mots de passe correspondent
+    const confirmControl = group.get('confirmPassword');
+    if (confirmControl?.hasError('passwordMismatch')) {
+      confirmControl.setErrors(null);
+    }
+
+    return null;
+  };
+}
+
+/**
  * Component handling new user registration via the register form.
  *
- * Displays a reactive form with username, email and password fields.
- * Validates fields client-side using Angular validators, and displays
- * server-side validation errors field-by-field via `setErrors({ serverError })`.
+ * Displays a reactive form with username, email, password and confirm password fields.
+ * Validates fields client-side using Angular validators and a custom password match validator.
+ * Server-side validation errors are applied field-by-field via `setErrors({ serverError })`.
  * On successful registration, redirects to `/projects`.
  *
- * Uses Angular Signals for `isLoading` and `globalError` to ensure
- * automatic DOM updates without manual change detection.
+ * Uses Angular Signals for `isLoading`, `globalError`, `showPassword` and `showConfirmPassword`
+ * to ensure automatic DOM updates without manual change detection.
+ *
+ * Uses a custom `passwordMatchValidator` at group level to compare password fields.
+ * The error is applied directly on `confirmPassword` control for `mat-error` compatibility.
  *
  * @see AuthService
  * @see getFieldErrors
@@ -46,30 +85,41 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  /** Reactive form with username, email and password fields. */
-  form: FormGroup = this.fb.group({
-    username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-  });
+  /** Reactive form with username, email, password and confirm password fields. */
+  form: FormGroup = this.fb.group(
+    {
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: passwordMatchValidator() },
+  );
 
   /** Signal — true while the registration request is in progress. Disables the submit button. */
   isLoading = signal(false);
 
-  /**
-   * Signal — global error message for non-field errors (e.g. username already taken).
-   * Null when no global error is present.
-   */
+  /** Signal — global error message for non-field errors. Null when no error. */
   globalError = signal<string | null>(null);
+
+  /** Signal — controls password field visibility. */
+  showPassword = signal(false);
+
+  /** Signal — controls confirm password field visibility. */
+  showConfirmPassword = signal(false);
+
+  /** True if passwords do not match and confirm field has been touched. */
+  get passwordMismatch(): boolean {
+    return this.form.hasError('passwordMismatch') && !!this.form.get('confirmPassword')?.touched;
+  }
 
   /**
    * Handles form submission.
    * Marks all fields as touched to trigger validation display,
    * then submits the registration request if the form is valid.
    *
-   * On API validation errors (`errors` map) — applies server-side error messages
-   * directly to the corresponding form controls via `setErrors({ serverError })`.
-   * On global errors (`message`) — updates the `globalError` Signal.
+   * On API validation errors — applies server-side messages to form controls.
+   * On global errors — updates the `globalError` Signal.
    */
   onSubmit(): void {
     this.form.markAllAsTouched();
@@ -108,7 +158,6 @@ export class RegisterComponent {
 
   /**
    * Returns all validation error messages for a given form field.
-   * Delegates to the shared `getFieldErrors` utility.
    *
    * @param field - The form control name
    * @returns Array of error messages, empty if no errors or field not touched
