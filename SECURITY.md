@@ -89,6 +89,7 @@ Rate limiting is enforced server-side. See
 for details.
 
 ### Token Cleanup
+
 - **Scheduled purge** — Expired and revoked refresh tokens are automatically
   deleted daily at 2:00 AM via a scheduled job, preventing unbounded database growth.
 
