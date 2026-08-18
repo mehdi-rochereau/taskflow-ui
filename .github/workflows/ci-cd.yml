@@ -24,7 +24,10 @@
 # Reliability:
 #   - Concurrency control cancels outdated runs on same branch
 #   - Timeout limits prevent runaway jobs consuming CI minutes
-#   - Automatic rollback to previous image if health check fails
+#   - Deploy and rollback both go through /opt/taskflow/scripts/deploy.sh,
+#     the shared per-service entry point owned by taskflow-deploy
+#   - Rollback reference lives in
+#     /tmp/taskflow-deploy-rollback-taskflow-ui.env, written by the script
 #   - Health check retries for 2 minutes after deploy
 # ============================================================
 
@@ -365,11 +368,28 @@ jobs:
           fi
 
       # ── Deploy VPS ───────────────────────────────────────
-      # Connects to the production VPS via SSH and deploys the new image.
-      # Before pulling the new image, the current container's image
-      # reference is saved to /tmp/taskflow_ui_rollback.env.
-      # This allows the rollback step to restore the previous version
-      # if the health check fails after deployment.
+      # Updates the taskflow-deploy working copy on the VPS, then hands the
+      # deployment over to the shared entry point script.
+      #
+      # The script owns everything that happens on the host: it checks that
+      # docker-compose.yml, .env and db/init/01-healthcheck-account.sql are
+      # present, refuses to continue if taskflow-db is not healthy, records the
+      # image ID of the running container in
+      # /tmp/taskflow-deploy-rollback-taskflow-ui.env, pulls the named service
+      # only and runs docker compose up -d --no-deps taskflow-ui.
+      # See taskflow-deploy issues #21 and #33.
+      #
+      # git pull stays here and never moves into the script: bash reads a script
+      # as it executes it, so a script that replaces its own file mid-run resumes
+      # at the wrong byte offset in the new file.
+      #
+      # --ff-only rather than a plain git pull: if someone edited a tracked file
+      # directly on the VPS, the deployment fails loudly instead of producing a
+      # merge commit on a production server.
+      #
+      # set -euo pipefail applies to this SSH block only. Without it, appleboy's
+      # default shell keeps going after a failed command and the step reports
+      # success on a deployment that never happened.
       #
       # VPS setup: Ubuntu 24.04 on Hetzner CPX22, Docker + Nginx + SSL.
       # SSH key: dedicated Ed25519 key generated for GitHub Actions only,
@@ -382,12 +402,12 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -euo pipefail
+
             cd /opt/taskflow
-            PREVIOUS_IMAGE=$(docker inspect taskflow-ui --format='{{.Config.Image}}' 2>/dev/null || echo "")
-            echo "previous_image=$PREVIOUS_IMAGE" > /tmp/taskflow_ui_rollback.env
-            docker compose pull taskflow-ui
-            docker compose up -d taskflow-ui
-            echo "✅ taskflow-ui deployed"
+            git pull --ff-only
+
+            /opt/taskflow/scripts/deploy.sh taskflow-ui
 
       # ── Health check ─────────────────────────────────────
       # Polls the frontend URL every 10 seconds for up to 2 minutes (12 attempts).
@@ -411,11 +431,25 @@ jobs:
           exit 1
 
       # ── Rollback on failure ──────────────────────────────
-      # Triggered only if the health check step failed (not skipped).
-      # Reads the previous image reference saved before deployment
-      # and restores it by re-tagging and restarting the container.
-      # This ensures the production UI is never left in a broken state
-      # after a failed deployment.
+      # Triggered only when the health check step actually failed, never when it
+      # was skipped. The condition is unchanged.
+      #
+      # The script reads /tmp/taskflow-deploy-rollback-taskflow-ui.env, checks
+      # that the recorded image is still present on the host, re-tags it and
+      # recreates the container. It exits 0 with an explicit message when no
+      # reference was recorded, so a first deployment does not turn a failed
+      # health check into a second, confusing failure.
+      #
+      # No git pull here, deliberately. A recovery path must carry as few
+      # conditions as possible, and a repository update failing at this exact
+      # moment would block the recovery it is meant to enable.
+      #
+      # No cd either: the script performs its own cd once its own checks pass.
+      #
+      # The previous inline logic read {{.Config.Image}}, which resolves to a tag
+      # reference. After a successful pull that tag already points at the new
+      # image, so the rollback re-tagged the new image onto itself and restored
+      # nothing. The script records the image ID via {{.Image}} instead.
       - name: Rollback on health check failure
         if: failure() && steps.health.outcome == 'failure'
         uses: appleboy/ssh-action@v1
@@ -424,17 +458,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /opt/taskflow
-            source /tmp/taskflow_ui_rollback.env
-            if [ -n "$PREVIOUS_IMAGE" ]; then
-              echo "⚠️ Rolling back to $PREVIOUS_IMAGE"
-              docker compose stop taskflow-ui
-              docker tag $PREVIOUS_IMAGE ghcr.io/mehdi-rochereau/taskflow-ui:latest
-              docker compose up -d taskflow-ui
-              echo "✅ Rollback complete"
-            else
-              echo "❌ No previous image found, cannot rollback"
-            fi
+            set -euo pipefail
+
+            /opt/taskflow/scripts/deploy.sh taskflow-ui --rollback
 
       # ── Smoke tests ──────────────────────────────────────
       # Verifies that key endpoints respond correctly after deploy.
