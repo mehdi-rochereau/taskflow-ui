@@ -20,7 +20,10 @@ RUN npm run build -- --configuration production
 # Serves the compiled Angular app with Nginx
 # Final image contains only Nginx + static files — no Node.js
 # ============================================================
-FROM nginx:alpine
+# Pinned to the same image as Dockerfile.cd rather than the floating
+# nginx:alpine tag, which follows mainline and would drift away from
+# production without anyone deciding it.
+FROM nginx:1.30-alpine
 
 # Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf

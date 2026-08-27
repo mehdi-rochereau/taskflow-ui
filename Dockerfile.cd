@@ -13,29 +13,39 @@
 #   This Dockerfile skips compilation entirely, reducing the
 #   CD build time significantly.
 #
-# Base image: nginx:1.26-alpine
-#   - Alpine 3.20 — minimal OS, smaller attack surface
-#   - Nginx 1.26 stable branch — production-grade static file server
+# Base image: nginx:1.30-alpine
+#   - Alpine 3.24 — minimal OS, smaller attack surface
+#   - Nginx 1.30 stable branch — production-grade static file server
 #   - No Node.js in the final image
-#   - apk upgrade run at build time to pull latest security patches
-#     (fixes CVE-2025-15467 and CVE-2026-31789 in libcrypto3/libssl3)
+#
+#   Moved off nginx:1.26-alpine, whose Alpine 3.20 base reached end of life
+#   on 2026-04-01. Trivy reported it on every run and warned that its
+#   detection was becoming incomplete, which made the "no CRITICAL CVE"
+#   verdict of the CD gate untrustworthy: the repository still served
+#   packages but no longer received fixes for CVEs published after that date.
+#
+#   Stable and not mainline: mainline is on 1.31.x on the same Alpine base,
+#   but this repository follows the stable branch, which only takes bug and
+#   security fixes.
 # ============================================================
 
-FROM nginx:1.26-alpine
+FROM nginx:1.30-alpine
 
-# Update Alpine packages to get latest security patches.
-# nginx:1.26-alpine ships with libcrypto3/libssl3 3.3.3-r0 which contains
-# CVE-2025-15467 (RCE via OpenSSL) and CVE-2026-31789 (heap buffer overflow).
-# apk upgrade pulls the fixed versions (3.3.6-r0 and 3.3.7-r0) from
-# the Alpine 3.20 repository without changing the base image.
+# Update Alpine packages to get the latest security patches.
+# Kept after the base image bump for a different reason than before: it no
+# longer works around an end-of-life base, it closes the gap between the date
+# the base image was published and the date this image is built. A fix
+# released in that window is picked up here rather than waiting for the next
+# nginx image release.
 RUN apk update && apk upgrade --no-cache
 
 # Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy custom Nginx configuration.
-# nginx.conf handles Angular routing (fallback to index.html)
-# and proxies /api/* requests to the Spring Boot backend.
+# nginx.conf handles Angular routing (fallback to index.html), cache policy
+# and security headers. It does not proxy anything: the frontend calls
+# api.taskflow.mehdi-rochereau.dev directly and CORS is handled by Spring.
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy Angular production build from CI artifact.
