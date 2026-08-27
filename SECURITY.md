@@ -42,7 +42,9 @@ with Angular 21, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
 
 - **HTTPS enforced in production** — All communication uses TLS.
 - **HSTS** — `Strict-Transport-Security` header with `includeSubDomains` and
-  `max-age=31536000` enforced by the API server.
+  `max-age=31536000`, set by the reverse proxy for both hosts. The proxy
+  terminates TLS, so it is the only layer that knows the connection is
+  encrypted.
 - **`withCredentials: true`** — Configured globally via `CredentialsInterceptor`
   to ensure cookies are sent with every cross-origin request.
 
@@ -52,8 +54,9 @@ with Angular 21, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
   escaped by Angular's template engine.
 - `bypassSecurityTrust` is **never used** in this codebase.
 - No direct DOM manipulation via `innerHTML` or equivalent.
-- **Content Security Policy** — `default-src 'self'; frame-ancestors 'none'` enforced
-  by the API server, preventing injection of unauthorized scripts.
+- **Content Security Policy** — set by this container's Nginx configuration,
+  limiting what a successful injection could reach. See the headers table below
+  for the policy in force.
 
 ### CSRF Prevention
 
@@ -72,15 +75,22 @@ with Angular 21, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
 
 ### HTTP Security Headers
 
-All security headers are enforced by the API server:
+The six headers below are set by this container's Nginx configuration, in
+`security-headers.conf`. HSTS is set by the reverse proxy instead, and is
+listed separately for that reason.
+
+Every header is declared with `always`, so it appears on error responses too,
+not only on 2xx and 3xx.
 
 | Header | Value |
 |--------|-------|
 | `X-Frame-Options` | `DENY` |
 | `X-Content-Type-Options` | `nosniff` |
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` |
-| `Content-Security-Policy` | `default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'` |
 | `Referrer-Policy` | `no-referrer` |
+| `X-XSS-Protection` | `1; mode=block` |
+| `Permissions-Policy` | `geolocation=(), microphone=(), camera=()` |
+| `Content-Security-Policy` | `default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; frame-ancestors 'none'` |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` — set by the reverse proxy |
 
 ### Rate Limiting
 
@@ -113,7 +123,8 @@ The deployment pipeline integrates multiple security controls:
 | Dedicated SSH key | Ed25519 | GitHub Actions-only key, separate from developer keys |
 | Branch protection | GitHub Rulesets | CI must pass before any merge to main |
 | Immutable deploys | Image digest | Trivy scans the exact pushed digest |
-| Automatic rollback | Docker | Previous image restored if health check fails |
+| Automatic rollback | Shared deploy script | Previous image ID restored if health check fails |
+| Deployment guardrails | Shared deploy script | Refuses to deploy if taskflow-db is unhealthy or config files are missing |
 
 ---
 
@@ -144,17 +155,18 @@ Frequent page reloads within a short period may trigger the rate limit and force
 re-authentication. This is a known trade-off between security and user experience.
 See [taskflow-api](https://github.com/mehdi-rochereau/taskflow-api) for configuration.
 
-### No Content Security Policy on Angular
+### `unsafe-inline` required in the style policy
 
-CSP headers are enforced by the API server, not by the Angular application itself.
-When the frontend is served independently (e.g. via Nginx), CSP headers should be
-added to the Nginx configuration.
+The CSP allows `'unsafe-inline'` for styles. Angular Material writes inline
+styles at runtime, and the production build inlines the critical CSS into the
+document head, so removing it breaks the rendering. Scripts are not affected:
+`script-src 'self'` allows no inline code.
 
 ---
 
 ## Planned Improvements
 
-- [ ] Add CSP headers to Nginx configuration when deployed
+- [ ] Self-host the fonts and drop the two Google origins from the CSP
 - [ ] Implement account deletion endpoint (`DELETE /api/users/me`) for GDPR compliance
 - [ ] Add `GET /api/auth/me` endpoint to eliminate any client-side session state
 - [ ] Consider `HttpOnly` cookie-based CSRF token for additional CSRF protection
