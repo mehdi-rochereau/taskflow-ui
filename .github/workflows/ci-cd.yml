@@ -91,8 +91,12 @@ jobs:
     steps:
 
       # ── Checkout ─────────────────────────────────────────
+      # v5 and not v6: v5.0.0 is the release that moves the runtime to Node 24
+      # and needs a v2.327.1 runner. v6 additionally relocates the persisted
+      # credentials into $RUNNER_TEMP and demands a v2.329.0 runner, a breaking
+      # change that buys nothing here.
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # fetch-depth: 0 fetches full git history.
           # Required by GitLeaks to scan all commits, not just HEAD.
@@ -105,7 +109,10 @@ jobs:
       # Runs before any build step to fail fast on security issues.
       - name: Scan for secrets with GitLeaks
         id: gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        # v3 migrates the runtime to Node 24 with no change to inputs, outputs
+        # or behaviour. The maintainer gives 16 September 2026 as the date v2
+        # stops working, which is what makes this migration dated.
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -115,7 +122,12 @@ jobs:
       # setup-node handles PATH configuration automatically.
       - name: Set up Node.js ${{ env.NODE_VERSION }}
         id: node
-        uses: actions/setup-node@v4
+        # v5 is the release that switches the runtime to Node 24. v6 and v7
+        # exist but bring nothing here. v6 restricts the action's automatic
+        # caching to npm only, an option this workflow does not use since the
+        # npm cache is handled separately by actions/cache below, and v6.1
+        # removes always-auth handling, which this workflow never declares.
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -126,8 +138,11 @@ jobs:
       # restore-keys provides a fallback to the most recent cache
       # if no exact match is found (partial cache hit).
       # This saves ~1-2 minutes per run when dependencies haven't changed.
+      # v5 is the Node 24 release and requires an Actions Runner of at least
+      # 2.327.1. GitHub-hosted runners are well past that, so the constraint has
+      # no effect here; it would matter on a self-hosted runner.
       - name: Cache npm dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -178,8 +193,13 @@ jobs:
         id: build
         run: npm run build -- --configuration production
 
+      # v6 and not v5. v5 carried preliminary Node 24 support only and still
+      # defaulted to Node 20, so stopping at v5 would leave the deprecation
+      # annotation exactly where it is. v6 is the first release where Node 24
+      # is the default runtime. The same offset applies to download-artifact in
+      # the CD job, shifted by one version.
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: taskflow-ui-dist
           path: dist/taskflow-ui/browser/
@@ -240,15 +260,20 @@ jobs:
       # ── Checkout ─────────────────────────────────────────
       # Required for Docker build context (Dockerfile.cd, nginx.conf).
       # Angular build itself is downloaded from CI artifact below.
+      # v5 and not v6: see the checkout step in the CI job.
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # ── Download build from CI ────────────────────────────
       # Downloads the Angular production build artifact from CI.
       # Avoids running npm install + ng build again in CD —
       # the exact same build that passed CI checks is packaged.
+      # v7 and not v6. Same trap as upload-artifact in the CI job, offset by
+      # one version: v6 carried preliminary Node 24 support only and still
+      # defaulted to Node 20. v7 is the first release where Node 24 is the
+      # default runtime.
       - name: Download build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: taskflow-ui-dist
           path: dist/taskflow-ui/browser/
@@ -258,8 +283,11 @@ jobs:
       # Required to enable GitHub Actions cache (type=gha) for
       # Docker layer caching. The default docker driver does not
       # support external cache backends.
+      # v4, v4, v6 and v7 for the four Docker actions below: each of these
+      # majors is the release that switches the runtime to Node 24, all
+      # requiring runner v2.327.1 or later.
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # ── Docker login ─────────────────────────────────────
       # Authenticates to GitHub Container Registry using GITHUB_TOKEN.
@@ -268,7 +296,7 @@ jobs:
       # The package must have the repository added in "Manage Actions access"
       # under the package settings on GitHub.
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -281,7 +309,7 @@ jobs:
       # Labels include source repo, commit SHA, build date.
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
@@ -313,7 +341,7 @@ jobs:
       # with private registries in some Trivy scan configurations.
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
@@ -349,9 +377,10 @@ jobs:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
+      # v6 and not v5: see the Upload build artifact step in the CI job.
       - name: Upload Trivy report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: trivy-report
           path: trivy-report.txt
