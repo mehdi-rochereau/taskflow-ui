@@ -130,6 +130,13 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
+          # v5 turns on its own npm cache by default, which v4 did not. Left on,
+          # it restores the same ~/.npm twice per run alongside the actions/cache
+          # step below, for no benefit. That step is kept rather than this one
+          # because it carries a restore-keys fallback, which this one does not:
+          # when package-lock.json changes, it recovers the most recent cache
+          # instead of starting from nothing.
+          package-manager-cache: false
 
       # ── npm cache ────────────────────────────────────────
       # Caches the npm module cache between runs.
