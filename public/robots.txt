@@ -1,2 +1,11 @@
+# Public routes are open to indexing: this site is a portfolio and is meant to
+# be found.
 User-agent: *
-Disallow: /
+Allow: /
+
+# /projects and /projects/<id> are behind AuthGuard. Nginx serves index.html
+# with a 200 on any path, and it is Angular that redirects to /login once the
+# JavaScript has run, so a crawler would see as many distinct pages returning
+# the same document. The prefix covers /projects/31 and every other id; no
+# second line is needed.
+Disallow: /projects
