@@ -260,7 +260,8 @@ Every push triggers an automated pipeline:
 | Build | Angular CLI | Production build |
 | Dependency CVEs | npm audit | moderate+ severity |
 | Docker image scan | Trivy | Blocks on CRITICAL CVEs |
-| Deployment | SSH + Docker Compose | Hetzner VPS |
+| Deployment | SSH + shared deploy script | Hetzner VPS, per-service entry point |
+| Digest verification | Docker inspect | Running container checked against the published digest |
 | Health check | Nginx | 2 min retry |
 | Rollback | Automatic | On health check failure |
 

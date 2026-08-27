@@ -123,6 +123,7 @@ The deployment pipeline integrates multiple security controls:
 | Dedicated SSH key | Ed25519 | GitHub Actions-only key, separate from developer keys |
 | Branch protection | GitHub Rulesets | CI must pass before any merge to main |
 | Immutable deploys | Image digest | Trivy scans the exact pushed digest |
+| Deployment verification | Image digest | The running container is checked against the digest published by the run, before the health check |
 | Automatic rollback | Shared deploy script | Previous image ID restored if health check fails |
 | Deployment guardrails | Shared deploy script | Refuses to deploy if taskflow-db is unhealthy or config files are missing |
 
