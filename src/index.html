@@ -15,12 +15,13 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Roboto is served by the application, see the Fontsource imports in
+         styles.scss. The preconnect hints went with it; Lighthouse reported
+         the one to fonts.googleapis.com as unused.
+         Angular's font optimisation still re-inserts a preconnect to
+         fonts.gstatic.com at build time, because it inlines the Material Icons
+         stylesheet and the font file itself stays remote. That goes away with
+         the icons. -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   </head>
   <body>
