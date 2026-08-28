@@ -15,7 +15,7 @@ with Angular 21, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
 ## Supported Versions
 
 | Version | Supported |
-|---------|-----------|
+| ------- | --------- |
 | 1.0.x   | ✅        |
 
 ---
@@ -82,15 +82,15 @@ listed separately for that reason.
 Every header is declared with `always`, so it appears on error responses too,
 not only on 2xx and 3xx.
 
-| Header | Value |
-|--------|-------|
-| `X-Frame-Options` | `DENY` |
-| `X-Content-Type-Options` | `nosniff` |
-| `Referrer-Policy` | `no-referrer` |
-| `X-XSS-Protection` | `1; mode=block` |
-| `Permissions-Policy` | `geolocation=(), microphone=(), camera=()` |
-| `Content-Security-Policy` | `default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; frame-ancestors 'none'` |
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` — set by the reverse proxy |
+| Header                      | Value                                                                                                                                                                                                 |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `X-Frame-Options`           | `DENY`                                                                                                                                                                                                |
+| `X-Content-Type-Options`    | `nosniff`                                                                                                                                                                                             |
+| `Referrer-Policy`           | `no-referrer`                                                                                                                                                                                         |
+| `X-XSS-Protection`          | `1; mode=block`                                                                                                                                                                                       |
+| `Permissions-Policy`        | `geolocation=(), microphone=(), camera=()`                                                                                                                                                            |
+| `Content-Security-Policy`   | `default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'self'; connect-src 'self' https://api.taskflow.mehdi-rochereau.dev; frame-ancestors 'none'` |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` — set by the reverse proxy                                                                                                                                      |
 
 ### Rate Limiting
 
@@ -114,30 +114,30 @@ for details.
 
 The deployment pipeline integrates multiple security controls:
 
-| Control | Tool | Details |
-|---------|------|---------|
-| Secret scanning | GitLeaks | Full git history scanned on every push |
-| Dependency CVEs | npm audit | Blocks on moderate severity |
-| Docker image scan | Trivy | Blocks deployment on CRITICAL CVEs |
-| Least privilege | GITHUB_TOKEN | No PAT — scoped token with minimal permissions |
-| Dedicated SSH key | Ed25519 | GitHub Actions-only key, separate from developer keys |
-| Branch protection | GitHub Rulesets | CI must pass before any merge to main |
-| Immutable deploys | Image digest | Trivy scans the exact pushed digest |
-| Deployment verification | Image digest | The running container is checked against the digest published by the run, before the health check |
-| Automatic rollback | Shared deploy script | Previous image ID restored if health check fails |
-| Deployment guardrails | Shared deploy script | Refuses to deploy if taskflow-db is unhealthy or config files are missing |
+| Control                 | Tool                 | Details                                                                                           |
+| ----------------------- | -------------------- | ------------------------------------------------------------------------------------------------- |
+| Secret scanning         | GitLeaks             | Full git history scanned on every push                                                            |
+| Dependency CVEs         | npm audit            | Blocks on moderate severity                                                                       |
+| Docker image scan       | Trivy                | Blocks deployment on CRITICAL CVEs                                                                |
+| Least privilege         | GITHUB_TOKEN         | No PAT — scoped token with minimal permissions                                                    |
+| Dedicated SSH key       | Ed25519              | GitHub Actions-only key, separate from developer keys                                             |
+| Branch protection       | GitHub Rulesets      | CI must pass before any merge to main                                                             |
+| Immutable deploys       | Image digest         | Trivy scans the exact pushed digest                                                               |
+| Deployment verification | Image digest         | The running container is checked against the digest published by the run, before the health check |
+| Automatic rollback      | Shared deploy script | Previous image ID restored if health check fails                                                  |
+| Deployment guardrails   | Shared deploy script | Refuses to deploy if taskflow-db is unhealthy or config files are missing                         |
 
 ---
 
 ## Security Principles Applied
 
-| Principle | Implementation |
-|-----------|----------------|
-| **Defense in Depth** | AuthGuard + AuthInterceptor + Spring Security + ownership checks |
-| **Least Privilege** | Scoped cookies (`/api`, `/api/auth`), minimal localStorage usage |
-| **Fail Secure** | Failed refresh → automatic logout and redirect to `/login` |
-| **Separation of Concerns** | Auth logic centralized in `AuthService` and `AuthInterceptor` |
-| **No Security by Obscurity** | Security relies on proven standards (JWT, HttpOnly, SameSite) |
+| Principle                    | Implementation                                                   |
+| ---------------------------- | ---------------------------------------------------------------- |
+| **Defense in Depth**         | AuthGuard + AuthInterceptor + Spring Security + ownership checks |
+| **Least Privilege**          | Scoped cookies (`/api`, `/api/auth`), minimal localStorage usage |
+| **Fail Secure**              | Failed refresh → automatic logout and redirect to `/login`       |
+| **Separation of Concerns**   | Auth logic centralized in `AuthService` and `AuthInterceptor`    |
+| **No Security by Obscurity** | Security relies on proven standards (JWT, HttpOnly, SameSite)    |
 
 ---
 
@@ -167,7 +167,7 @@ document head, so removing it breaks the rendering. Scripts are not affected:
 
 ## Planned Improvements
 
-- [ ] Self-host the fonts and drop the two Google origins from the CSP
+- [ ] Restore back/forward cache eligibility on the entry page
 - [ ] Implement account deletion endpoint (`DELETE /api/users/me`) for GDPR compliance
 - [ ] Add `GET /api/auth/me` endpoint to eliminate any client-side session state
 - [ ] Consider `HttpOnly` cookie-based CSRF token for additional CSRF protection
@@ -184,6 +184,7 @@ responsibly by contacting:
 **Email:** mehdi.rochereau.dev@gmail.com
 
 Please include:
+
 - A description of the vulnerability
 - Steps to reproduce
 - Potential impact
