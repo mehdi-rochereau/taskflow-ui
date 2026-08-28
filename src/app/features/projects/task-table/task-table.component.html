@@ -5,13 +5,13 @@
 } @else if (tasks.length === 0) {
   @if (hasActiveFilter) {
     <div class="empty-state">
-      <mat-icon>search_off</mat-icon>
+      <mat-icon svgIcon="search_off"></mat-icon>
       <h2>No results found</h2>
       <p>No tasks match the selected filter</p>
     </div>
   } @else {
     <div class="empty-state">
-      <mat-icon>assignment</mat-icon>
+      <mat-icon svgIcon="assignment"></mat-icon>
       <h2>No tasks yet</h2>
       <p>Create your first task to get started</p>
       <button mat-flat-button color="primary" (click)="createTask.emit()">
@@ -68,17 +68,17 @@
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let task">
           <button mat-icon-button (click)="view.emit(task); $event.stopPropagation()">
-            <mat-icon>visibility</mat-icon>
+            <mat-icon svgIcon="visibility"></mat-icon>
           </button>
           <button mat-icon-button (click)="edit.emit({ event: $event, task })">
-            <mat-icon>edit</mat-icon>
+            <mat-icon svgIcon="edit"></mat-icon>
           </button>
           <button
             mat-icon-button
             style="color: var(--mat-sys-error)"
             (click)="delete.emit({ event: $event, task })"
           >
-            <mat-icon>delete</mat-icon>
+            <mat-icon svgIcon="delete"></mat-icon>
           </button>
         </mat-cell>
       </ng-container>

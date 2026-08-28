@@ -1,7 +1,7 @@
 <div class="register-container">
   <mat-card>
     <a routerLink="/" class="brand">
-      <mat-icon>task_alt</mat-icon>
+      <mat-icon svgIcon="task_alt"></mat-icon>
       <span>TaskFlow</span>
     </a>
 
@@ -40,7 +40,7 @@
             type="button"
             (click)="showPassword.set(!showPassword())"
           >
-            <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            <mat-icon [svgIcon]="showPassword() ? 'visibility_off' : 'visibility'"></mat-icon>
           </button>
           @for (error of getFieldErrors('password'); track error) {
             <mat-error>{{ error }}</mat-error>
@@ -60,7 +60,9 @@
             type="button"
             (click)="showConfirmPassword.set(!showConfirmPassword())"
           >
-            <mat-icon>{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            <mat-icon
+              [svgIcon]="showConfirmPassword() ? 'visibility_off' : 'visibility'"
+            ></mat-icon>
           </button>
           @for (error of getFieldErrors('confirmPassword'); track error) {
             <mat-error>{{ error }}</mat-error>

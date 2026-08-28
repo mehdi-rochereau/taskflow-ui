@@ -2,13 +2,13 @@
   <!-- ── Navbar ─────────────────────────────────────────── -->
   <nav class="navbar">
     <div class="navbar-brand">
-      <mat-icon>task_alt</mat-icon>
+      <mat-icon svgIcon="task_alt"></mat-icon>
       <span>TaskFlow</span>
     </div>
     <div class="navbar-actions">
       @if (isAuthenticated()) {
         <a mat-raised-button routerLink="/projects">
-          <mat-icon>dashboard</mat-icon>
+          <mat-icon svgIcon="dashboard"></mat-icon>
           My Projects
         </a>
       } @else {
@@ -31,13 +31,13 @@
       </p>
       <div class="hero-actions">
         <a mat-raised-button routerLink="/register" class="hero-btn-primary">
-          <mat-icon>person_add</mat-icon>
+          <mat-icon svgIcon="person_add"></mat-icon>
           Create a free account
         </a>
         <a mat-stroked-button routerLink="/login" class="hero-btn-secondary"> Sign in </a>
       </div>
       <p class="hero-hint">
-        <mat-icon>info</mat-icon>
+        <mat-icon svgIcon="info"></mat-icon>
         No real email required — use anything@example.com
       </p>
     </div>
@@ -80,7 +80,7 @@
         @for (feature of features; track feature.title) {
           <div class="feature-card">
             <div class="feature-icon">
-              <mat-icon>{{ feature.icon }}</mat-icon>
+              <mat-icon [svgIcon]="feature.icon"></mat-icon>
             </div>
             <h3>{{ feature.title }}</h3>
             <p>{{ feature.description }}</p>
@@ -100,25 +100,25 @@
         <p>Create a free account in seconds — no real email required.</p>
         <ul class="try-list">
           <li>
-            <mat-icon>check_circle</mat-icon>
+            <mat-icon svgIcon="check_circle"></mat-icon>
             Use any email address — e.g. <code>test@example.com</code>
           </li>
           <li>
-            <mat-icon>check_circle</mat-icon>
+            <mat-icon svgIcon="check_circle"></mat-icon>
             Create projects and tasks immediately after registration
           </li>
           <li>
-            <mat-icon>check_circle</mat-icon>
+            <mat-icon svgIcon="check_circle"></mat-icon>
             Explore the API documentation via Swagger UI or Redoc
           </li>
         </ul>
         <div class="try-actions">
           <a mat-raised-button routerLink="/register">
-            <mat-icon>person_add</mat-icon>
+            <mat-icon svgIcon="person_add"></mat-icon>
             Create an account
           </a>
           <a mat-button routerLink="/api-docs">
-            <mat-icon>description</mat-icon>
+            <mat-icon svgIcon="description"></mat-icon>
             View API docs
           </a>
         </div>
@@ -126,7 +126,7 @@
 
       <div class="try-card">
         <div class="try-card-header">
-          <mat-icon>terminal</mat-icon>
+          <mat-icon svgIcon="terminal"></mat-icon>
           Quick start
         </div>
         <div class="try-card-body">
