@@ -38,11 +38,27 @@ export class LandingComponent implements OnInit {
   /**
    * Attempts a silent token refresh on page load to restore the session
    * from the `refreshToken` HttpOnly cookie.
-   * Errors are silently ignored — the page renders normally for unauthenticated visitors.
+   *
+   * The error callback is what makes the attempt actually silent. A bare
+   * subscribe() provides no error handler, so RxJS rethrows asynchronously,
+   * the error reaches Angular's global handler and lands in the console. For a
+   * visitor with no session the API answers 400 with "refresh token not
+   * found", which is the expected outcome, not a fault: logging it in red
+   * trains the reader to ignore console errors, and Lighthouse counts it in
+   * its best-practices audit.
+   *
+   * The callback is deliberately empty rather than logging at a lower level:
+   * there is nothing to report. A genuine failure of this call is
+   * indistinguishable from the normal case here, and would surface on the next
+   * authenticated request.
    */
   ngOnInit(): void {
     if (!this.authService.isAuthenticated()) {
-      this.authService.refresh().subscribe();
+      this.authService.refresh().subscribe({
+        error: () => {
+          // Expected for a visitor with no session.
+        },
+      });
     }
   }
 
