@@ -6,7 +6,7 @@
     @if (username()) {
       <div class="avatar">{{ getInitials() }}</div>
     } @else {
-      <mat-icon>account_circle</mat-icon>
+      <mat-icon svgIcon="account_circle"></mat-icon>
     }
   </button>
 
@@ -22,7 +22,7 @@
     <mat-divider />
 
     <button mat-menu-item (click)="logout()">
-      <mat-icon>logout</mat-icon>
+      <mat-icon svgIcon="logout"></mat-icon>
       Logout
     </button>
   </mat-menu>

@@ -15,13 +15,14 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <!-- No font is loaded from a third party any more. Roboto is served by the
+         application through the Fontsource imports in styles.scss, and the
+         Material Icons font is gone entirely: icons are individual SVG files
+         under public/icons/, resolved by MatIconRegistry, see app.config.ts.
+         That font weighed 128 kB for twenty-eight glyphs; the SVG files weigh
+         7.7 kB in total. The preconnect hints went with the links, and Angular
+         no longer re-inserts one since there is no remote stylesheet left to
+         inline. -->
   </head>
   <body>
     <app-root></app-root>

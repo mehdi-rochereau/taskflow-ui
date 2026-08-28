@@ -56,6 +56,13 @@ export class LoginComponent {
   errorMessage = signal<string | null>(null);
 
   /**
+   * Signal — controls whether the password is displayed in plain text.
+   * Drives both the input type and the toggle icon, so a single source of
+   * truth keeps them from ever disagreeing.
+   */
+  showPassword = signal(false);
+
+  /**
    * Handles form submission.
    * Marks all fields as touched to trigger validation display,
    * then submits the login request if the form is valid.

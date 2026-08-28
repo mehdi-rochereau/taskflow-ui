@@ -30,22 +30,22 @@ For security details, see [SECURITY.md](SECURITY.md).
 
 ## Tech Stack
 
-| Layer | Technology                                |
-|-------|-------------------------------------------|
-| Framework | Angular 21                                |
-| UI Library | Angular Material 21 (Material 3)          |
-| Language | TypeScript 5.x                            |
-| Styling | SCSS + CSS Variables (Material 3 theming) |
-| State Management | Angular Signals                           |
-| HTTP | HttpClient + Interceptors                 |
-| Routing | Angular Router (lazy loading)             |
-| Forms | Reactive Forms                            |
+| Layer             | Technology                                |
+| ----------------- | ----------------------------------------- |
+| Framework         | Angular 21                                |
+| UI Library        | Angular Material 21 (Material 3)          |
+| Language          | TypeScript 5.x                            |
+| Styling           | SCSS + CSS Variables (Material 3 theming) |
+| State Management  | Angular Signals                           |
+| HTTP              | HttpClient + Interceptors                 |
+| Routing           | Angular Router (lazy loading)             |
+| Forms             | Reactive Forms                            |
 | API Documentation | Redoc (embedded)                          |
-| Build Tool | Angular CLI                               |
-| CI/CD | GitHub Actions + Docker + Trivy           |
-| Container | Docker + ghcr.io                          |
-| Deployment | Hetzner VPS + Nginx                       |
-| Code Quality | ESLint + Prettier                         |
+| Build Tool        | Angular CLI                               |
+| CI/CD             | GitHub Actions + Docker + Trivy           |
+| Container         | Docker + ghcr.io                          |
+| Deployment        | Hetzner VPS + Nginx                       |
+| Code Quality      | ESLint + Prettier                         |
 
 ---
 
@@ -74,6 +74,7 @@ src/app/
 ```
 
 The application follows the **Smart/Dumb component pattern**:
+
 - **Smart components** (`ProjectDetailComponent`, `ProjectListComponent`) — manage state,
   HTTP calls and business logic
 - **Dumb components** (`ProjectHeaderComponent`, `TaskTableComponent`, `TaskFiltersComponent`)
@@ -138,7 +139,20 @@ cloning the repository brings the hook file but not the setting that activates
 it. Without this command the hook stays inert and a badly formatted push only
 fails once it reaches the CI. Run `npm run format` to fix what the hook reports.
 
-**4. Start the development server**
+**4. Set up your editor (optional)**
+
+Formatting is enforced by Prettier, both by the pre-push hook and by the CI. Setting
+your editor to format on save avoids the round trip of a refused push. Point it at the
+Prettier package in `node_modules` rather than a global install, so it applies the
+version pinned in `package.json`.
+
+- [WebStorm](https://www.jetbrains.com/help/webstorm/prettier.html)
+- [VS Code](https://github.com/prettier/prettier-vscode)
+
+The repository also carries an `.editorconfig`, which both editors read automatically:
+UTF-8, LF line endings, two-space indentation, single quotes in TypeScript.
+
+**5. Start the development server**
 
 ```bash
 ng serve
@@ -146,7 +160,7 @@ ng serve
 
 The application starts on `http://localhost:4200`.
 
-**5. Make sure the API is running**
+**6. Make sure the API is running**
 
 See [taskflow-api](https://github.com/mehdi-rochereau/taskflow-api) for setup instructions.
 
@@ -156,10 +170,10 @@ See [taskflow-api](https://github.com/mehdi-rochereau/taskflow-api) for setup in
 
 Environment files are located in `src/environments/`.
 
-| Variable | Development | Production |
-|----------|-------------|------------|
-| `apiUrl` | `http://localhost:8082/api` | `https://api.taskflow.mehdi-rochereau.dev/api` |
-| `apiBaseUrl` | `http://localhost:8082` | `https://api.taskflow.mehdi-rochereau.dev` |
+| Variable     | Development                                   | Production                                                       |
+| ------------ | --------------------------------------------- | ---------------------------------------------------------------- |
+| `apiUrl`     | `http://localhost:8082/api`                   | `https://api.taskflow.mehdi-rochereau.dev/api`                   |
+| `apiBaseUrl` | `http://localhost:8082`                       | `https://api.taskflow.mehdi-rochereau.dev`                       |
 | `swaggerUrl` | `http://localhost:8082/swagger-ui/index.html` | `https://api.taskflow.mehdi-rochereau.dev/swagger-ui/index.html` |
 
 ---
@@ -167,6 +181,7 @@ Environment files are located in `src/environments/`.
 ## Key Angular Patterns Demonstrated
 
 ### Signals
+
 ```typescript
 // Reactive state without RxJS overhead
 readonly isAuthenticated = signal<boolean>(false);
@@ -174,16 +189,18 @@ readonly username = this._username.asReadonly();
 ```
 
 ### Smart/Dumb Components
+
 ```typescript
 // Dumb component — pure display, OnPush
 @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
 export class TaskTableComponent {
   @Input({ required: true }) tasks: Task[] = [];
-  @Output() edit = new EventEmitter<{ event: Event, task: Task }>();
+  @Output() edit = new EventEmitter<{ event: Event; task: Task }>();
 }
 ```
 
 ### Silent Refresh Interceptor
+
 ```typescript
 // Automatic JWT renewal on 401
 return next(req).pipe(
@@ -199,11 +216,15 @@ return next(req).pipe(
 ```
 
 ### Resolver
+
 ```typescript
 // Data loaded before component activation
 export const projectResolver: ResolveFn<Project> = (route) => {
   return projectService.getProjectById(Number(route.paramMap.get('id'))).pipe(
-    catchError(() => { router.navigate(['/projects']); return EMPTY; })
+    catchError(() => {
+      router.navigate(['/projects']);
+      return EMPTY;
+    }),
   );
 };
 ```
@@ -214,23 +235,23 @@ export const projectResolver: ResolveFn<Project> = (route) => {
 
 ### Routes
 
-| Path | Component | Guard | Resolver |
-|------|-----------|-------|----------|
-| `/` | `LandingComponent` | — | — |
-| `/login` | `LoginComponent` | — | — |
-| `/register` | `RegisterComponent` | — | — |
-| `/projects` | `ProjectListComponent` | `AuthGuard` | — |
+| Path            | Component                | Guard       | Resolver          |
+| --------------- | ------------------------ | ----------- | ----------------- |
+| `/`             | `LandingComponent`       | —           | —                 |
+| `/login`        | `LoginComponent`         | —           | —                 |
+| `/register`     | `RegisterComponent`      | —           | —                 |
+| `/projects`     | `ProjectListComponent`   | `AuthGuard` | —                 |
 | `/projects/:id` | `ProjectDetailComponent` | `AuthGuard` | `ProjectResolver` |
-| `/api-docs` | `ApiDocsComponent` | — | — |
-| `**` | `NotFoundComponent` | — | — |
+| `/api-docs`     | `ApiDocsComponent`       | —           | —                 |
+| `**`            | `NotFoundComponent`      | —           | —                 |
 
 ### Interceptors
 
-| Interceptor | Role |
-|-------------|------|
-| `CredentialsInterceptor` | Adds `withCredentials: true` to all requests |
-| `AuthInterceptor` | Handles 401 responses with silent token refresh |
-| `ErrorInterceptor` | Handles 500 and 429 responses with snackbar notifications |
+| Interceptor              | Role                                                      |
+| ------------------------ | --------------------------------------------------------- |
+| `CredentialsInterceptor` | Adds `withCredentials: true` to all requests              |
+| `AuthInterceptor`        | Handles 401 responses with silent token refresh           |
+| `ErrorInterceptor`       | Handles 500 and 429 responses with snackbar notifications |
 
 ---
 
@@ -263,18 +284,18 @@ Reduces unnecessary re-renders by only checking components when their `@Input()`
 
 Every push triggers an automated pipeline:
 
-| Step | Tool | Details |
-|------|------|---------|
-| Secret scanning | GitLeaks | Full history scan |
-| Code formatting | Prettier | .prettierrc rules |
-| Code quality | ESLint | Angular ESLint rules |
-| Build | Angular CLI | Production build |
-| Dependency CVEs | npm audit | moderate+ severity |
-| Docker image scan | Trivy | Blocks on CRITICAL CVEs |
-| Deployment | SSH + shared deploy script | Hetzner VPS, per-service entry point |
-| Digest verification | Docker inspect | Running container checked against the published digest |
-| Health check | Nginx | 2 min retry |
-| Rollback | Automatic | On health check failure |
+| Step                | Tool                       | Details                                                |
+| ------------------- | -------------------------- | ------------------------------------------------------ |
+| Secret scanning     | GitLeaks                   | Full history scan                                      |
+| Code formatting     | Prettier                   | .prettierrc rules                                      |
+| Code quality        | ESLint                     | Angular ESLint rules                                   |
+| Build               | Angular CLI                | Production build                                       |
+| Dependency CVEs     | npm audit                  | moderate+ severity                                     |
+| Docker image scan   | Trivy                      | Blocks on CRITICAL CVEs                                |
+| Deployment          | SSH + shared deploy script | Hetzner VPS, per-service entry point                   |
+| Digest verification | Docker inspect             | Running container checked against the published digest |
+| Health check        | Nginx                      | 2 min retry                                            |
+| Rollback            | Automatic                  | On health check failure                                |
 
 Push to `main` → CI passes → Docker image built → deployed to production automatically.
 
@@ -295,10 +316,10 @@ including the full project management manual.
 
 ## Ecosystem
 
-| Repository | Description |
-|------------|-------------|
-| [taskflow-ui](https://github.com/mehdi-rochereau/taskflow-ui) | Angular frontend (this repo) |
-| [taskflow-api](https://github.com/mehdi-rochereau/taskflow-api) | Spring Boot REST API |
-| [taskflow-deploy](https://github.com/mehdi-rochereau/taskflow-deploy) | Docker Compose, Nginx, deployment scripts |
-| [SECURITY.md](SECURITY.md) | Frontend security policy |
-| [taskflow-api/SECURITY.md](https://github.com/mehdi-rochereau/taskflow-api/blob/main/SECURITY.md) | API security policy |
+| Repository                                                                                        | Description                               |
+| ------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| [taskflow-ui](https://github.com/mehdi-rochereau/taskflow-ui)                                     | Angular frontend (this repo)              |
+| [taskflow-api](https://github.com/mehdi-rochereau/taskflow-api)                                   | Spring Boot REST API                      |
+| [taskflow-deploy](https://github.com/mehdi-rochereau/taskflow-deploy)                             | Docker Compose, Nginx, deployment scripts |
+| [SECURITY.md](SECURITY.md)                                                                        | Frontend security policy                  |
+| [taskflow-api/SECURITY.md](https://github.com/mehdi-rochereau/taskflow-api/blob/main/SECURITY.md) | API security policy                       |

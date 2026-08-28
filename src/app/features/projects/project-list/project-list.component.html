@@ -11,7 +11,7 @@
         @if (isSubmitting()) {
           <mat-spinner diameter="20" />
         } @else {
-          <mat-icon>add</mat-icon>
+          <mat-icon svgIcon="add"></mat-icon>
         }
         New Project
       </span>
@@ -20,7 +20,7 @@
   <mat-form-field appearance="outline" class="search-field">
     <mat-label>Search projects</mat-label>
     <input matInput (input)="searchQuery.set($any($event.target).value)" />
-    <mat-icon matIconSuffix>search</mat-icon>
+    <mat-icon matIconSuffix svgIcon="search"></mat-icon>
   </mat-form-field>
   @if (isLoading()) {
     <div class="spinner-container">
@@ -28,13 +28,13 @@
     </div>
   } @else if (filteredProjects().length === 0 && searchQuery()) {
     <div class="empty-state">
-      <mat-icon>search_off</mat-icon>
+      <mat-icon svgIcon="search_off"></mat-icon>
       <h2>No results found</h2>
       <p>No projects match "{{ searchQuery() }}"</p>
     </div>
   } @else if (projects().length === 0) {
     <div class="empty-state">
-      <mat-icon>folder_open</mat-icon>
+      <mat-icon svgIcon="folder_open"></mat-icon>
       <h2>No projects yet</h2>
       <p>Create your first project to get started</p>
       <button mat-flat-button color="primary" (click)="openCreateDialog()">
@@ -56,7 +56,7 @@
             <div class="task-progress">
               <div class="task-progress-header">
                 <span class="task-count">
-                  <mat-icon>task_alt</mat-icon>
+                  <mat-icon svgIcon="task_alt"></mat-icon>
                   {{ getDoneCount(project.id) }}/{{ getTaskCount(project.id) }} tasks done
                 </span>
               </div>
@@ -68,7 +68,7 @@
           </mat-card-content>
           <mat-card-actions>
             <button mat-button (click)="openEditDialog($event, project)">
-              <mat-icon>edit</mat-icon>
+              <mat-icon svgIcon="edit"></mat-icon>
               Edit
             </button>
             <button
@@ -76,7 +76,7 @@
               style="color: var(--mat-sys-error)"
               (click)="deleteProject($event, project)"
             >
-              <mat-icon>delete</mat-icon>
+              <mat-icon svgIcon="delete"></mat-icon>
               Delete
             </button>
           </mat-card-actions>

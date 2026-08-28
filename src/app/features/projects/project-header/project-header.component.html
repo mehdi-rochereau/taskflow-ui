@@ -1,7 +1,7 @@
 <div class="project-header">
   <div class="header-top">
     <button mat-icon-button routerLink="/projects">
-      <mat-icon>arrow_back</mat-icon>
+      <mat-icon svgIcon="arrow_back"></mat-icon>
     </button>
     <div class="header-right">
       <button mat-flat-button color="primary" (click)="createTask.emit()" [disabled]="isSubmitting">
@@ -9,7 +9,7 @@
           @if (isSubmitting) {
             <mat-spinner diameter="20" />
           } @else {
-            <mat-icon>add</mat-icon>
+            <mat-icon svgIcon="add"></mat-icon>
           }
           New Task
         </span>
