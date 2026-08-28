@@ -1,0 +1,30 @@
+#!/bin/sh
+# .githooks/pre-push
+#
+# Refuses a push whose sources are not formatted.
+#
+# pre-push and not pre-commit: a commit is a private checkpoint, and blocking
+# one interrupts work in progress for a problem that only matters once the code
+# leaves the machine. A push is where it leaves.
+#
+# --check and not --write: a hook that rewrites files while Git is assembling a
+# push desynchronises what was verified from what is sent. The hook reports, the
+# developer fixes.
+#
+# npx resolves the local prettier from node_modules rather than a global
+# install, so every clone runs the version pinned in package.json.
+#
+# This hook only works alongside .gitattributes. Without it, Git checks out
+# CRLF under Windows while the repository stores LF, and Prettier reports every
+# file as badly formatted, so the hook would refuse every push on a clean
+# repository.
+
+if ! npx prettier --check "src/**/*.{ts,html,scss}"; then
+    echo ""
+    echo "Push refused: source files are not formatted."
+    echo "Run:  npm run format"
+    echo "Then stage the rewritten files, amend or add a commit, and push again."
+    echo ""
+    echo "To bypass once:  git push --no-verify"
+    exit 1
+fi

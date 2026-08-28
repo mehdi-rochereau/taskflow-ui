@@ -127,7 +127,18 @@ cd taskflow-ui
 npm install
 ```
 
-**3. Start the development server**
+**3. Enable the formatting hook**
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This is per clone: Git stores it in `.git/config`, which is not versioned, so
+cloning the repository brings the hook file but not the setting that activates
+it. Without this command the hook stays inert and a badly formatted push only
+fails once it reaches the CI. Run `npm run format` to fix what the hook reports.
+
+**4. Start the development server**
 
 ```bash
 ng serve
@@ -135,7 +146,7 @@ ng serve
 
 The application starts on `http://localhost:4200`.
 
-**4. Make sure the API is running**
+**5. Make sure the API is running**
 
 See [taskflow-api](https://github.com/mehdi-rochereau/taskflow-api) for setup instructions.
 
