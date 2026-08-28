@@ -31,12 +31,14 @@ with Angular 21, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
   previous token and issues a new one.
 - **Silent Refresh** — Expired JWT tokens are automatically refreshed via the
   `AuthInterceptor` without interrupting the user experience.
-- **Session Restoration** — On page reload, the `AuthGuard` attempts a silent refresh
-  to restore the session from the refresh token cookie.
+- **Session Restoration** — On page load, a silent refresh restores the session from
+  the refresh token cookie: `LandingComponent` attempts it on the public landing page,
+  and `AuthGuard` on protected routes.
 - **Secure Logout** — Logout calls `POST /api/auth/logout` which revokes all active
   refresh tokens server-side and clears both HttpOnly cookies.
-- **No Sensitive Data in localStorage** — Only non-sensitive display data is stored
-  client-side. All authentication tokens are managed via HttpOnly cookies.
+- **Nothing stored client-side** — Neither `localStorage` nor `sessionStorage` is used.
+  The username and email are held in memory as signals and are lost on reload, then
+  restored by the silent refresh. All authentication tokens live in HttpOnly cookies.
 
 ### Transport Security
 
@@ -52,7 +54,11 @@ with Angular 21, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
 
 - **Angular template escaping** — All interpolated values (`{{ }}`) are automatically
   escaped by Angular's template engine.
-- `bypassSecurityTrust` is **never used** in this codebase.
+- `bypassSecurityTrust` is used in exactly one place: `app.config.ts`, where
+  `MatIconRegistry` requires a `SafeResourceUrl` by signature to resolve icon
+  files. The URL is relative and built from a fixed prefix and the icon name
+  written in the templates, so it cannot come from user input. Nowhere else in
+  the codebase is the sanitizer bypassed.
 - No direct DOM manipulation via `innerHTML` or equivalent.
 - **Content Security Policy** — set by this container's Nginx configuration,
   limiting what a successful injection could reach. See the headers table below
@@ -62,8 +68,8 @@ with Angular 21, Spring Boot 3.5, JWT authentication and HttpOnly cookies.
 
 - **SameSite=Strict cookies** — All HttpOnly cookies use `SameSite=Strict`, preventing
   cross-site request forgery attacks.
-- **Stateless API** — The API uses no session cookies, eliminating the primary CSRF
-  attack vector.
+- **Stateless API** — The API keeps no server-side session. Authentication rests on a
+  JWT carried by a cookie, so there is no session identifier to forge.
 
 ### Access Control
 
@@ -117,7 +123,7 @@ The deployment pipeline integrates multiple security controls:
 | Control                 | Tool                 | Details                                                                                           |
 | ----------------------- | -------------------- | ------------------------------------------------------------------------------------------------- |
 | Secret scanning         | GitLeaks             | Full git history scanned on every push                                                            |
-| Dependency CVEs         | npm audit            | Blocks on moderate severity                                                                       |
+| Dependency CVEs         | npm audit            | Reports on moderate severity; does not block, the step runs with continue-on-error                |
 | Docker image scan       | Trivy                | Blocks deployment on CRITICAL CVEs                                                                |
 | Least privilege         | GITHUB_TOKEN         | No PAT — scoped token with minimal permissions                                                    |
 | Dedicated SSH key       | Ed25519              | GitHub Actions-only key, separate from developer keys                                             |
@@ -167,10 +173,10 @@ document head, so removing it breaks the rendering. Scripts are not affected:
 
 ## Planned Improvements
 
-- [ ] Restore back/forward cache eligibility on the entry page
+- [ ] Revalidate the session when a tab regains focus, so that a logout in another tab is reflected without waiting for the next API call
 - [ ] Implement account deletion endpoint (`DELETE /api/users/me`) for GDPR compliance
 - [ ] Add `GET /api/auth/me` endpoint to eliminate any client-side session state
-- [ ] Consider `HttpOnly` cookie-based CSRF token for additional CSRF protection
+- [ ] Patch the dependency vulnerabilities npm audit reports, then make the step blocking
 - [ ] OAuth2 Google + GitHub (planned)
 - [ ] Trivy scan on HIGH severity (currently CRITICAL only)
 
