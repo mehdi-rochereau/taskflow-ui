@@ -297,7 +297,7 @@ Every push triggers an automated pipeline:
 | Docker image scan   | Trivy                      | Blocks on CRITICAL CVEs                                |
 | Deployment          | SSH + shared deploy script | Hetzner VPS, per-service entry point                   |
 | Digest verification | Docker inspect             | Running container checked against the published digest |
-| Health check        | Nginx                      | 2 min retry                                            |
+| Health check        | Nginx                      | `/healthz`, 2 min retry                                |
 | Rollback            | Automatic                  | On health check failure                                |
 
 Push to `main` → CI passes → Docker image built → deployed to production automatically.
