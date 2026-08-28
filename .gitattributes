@@ -1,0 +1,21 @@
+# Normalise line endings across platforms.
+#
+# Without this, Git converts to CRLF on checkout under Windows when
+# core.autocrlf is true, while the repository stores LF. Prettier then
+# reports every file as badly formatted locally while the CI, which reads
+# the repository content, stays green. A pre-push hook running Prettier
+# would refuse every push on a clean repository.
+#
+# eol=lf and not eol=native: this source tree is built into a Linux
+# container, and LF is what the repository already stores.
+* text=auto eol=lf
+
+# Binary files must never be converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
