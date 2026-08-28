@@ -30,22 +30,23 @@ For security details, see [SECURITY.md](SECURITY.md).
 
 ## Tech Stack
 
-| Layer             | Technology                                |
-| ----------------- | ----------------------------------------- |
-| Framework         | Angular 21                                |
-| UI Library        | Angular Material 21 (Material 3)          |
-| Language          | TypeScript 5.x                            |
-| Styling           | SCSS + CSS Variables (Material 3 theming) |
-| State Management  | Angular Signals                           |
-| HTTP              | HttpClient + Interceptors                 |
-| Routing           | Angular Router (lazy loading)             |
-| Forms             | Reactive Forms                            |
-| API Documentation | Redoc (embedded)                          |
-| Build Tool        | Angular CLI                               |
-| CI/CD             | GitHub Actions + Docker + Trivy           |
-| Container         | Docker + ghcr.io                          |
-| Deployment        | Hetzner VPS + Nginx                       |
-| Code Quality      | ESLint + Prettier                         |
+| Layer             | Technology                                        |
+| ----------------- | ------------------------------------------------- |
+| Framework         | Angular 21                                        |
+| UI Library        | Angular Material 21 (Material 3)                  |
+| Language          | TypeScript 5.x                                    |
+| Styling           | SCSS + CSS Variables (Material 3 theming)         |
+| Fonts & icons     | Self-hosted Roboto (Fontsource) + local SVG icons |
+| State Management  | Angular Signals                                   |
+| HTTP              | HttpClient + Interceptors                         |
+| Routing           | Angular Router (lazy loading)                     |
+| Forms             | Reactive Forms                                    |
+| API Documentation | Redoc (embedded)                                  |
+| Build Tool        | Angular CLI                                       |
+| CI/CD             | GitHub Actions + Docker + Trivy                   |
+| Container         | Docker + ghcr.io                                  |
+| Deployment        | Hetzner VPS + Nginx                               |
+| Code Quality      | ESLint + Prettier                                 |
 
 ---
 
@@ -65,7 +66,9 @@ src/app/
 │       ├── project-header/   # Smart/Dumb: project header with back button
 │       ├── task-filters/     # Smart/Dumb: status and priority filters
 │       ├── task-table/       # Smart/Dumb: task table with actions
-│       └── dialogs/          # ProjectFormDialog, TaskFormDialog, TaskDetailDialog, ConfirmDialog
+│       ├── project-form-dialog/  # Create and edit a project
+│       ├── task-form-dialog/     # Create and edit a task
+│       └── task-detail-dialog/   # Read-only task details
 └── shared/                   # Reusable components, pipes, utilities
     ├── components/           # NotFoundComponent, ApiDocsComponent, ConfirmDialogComponent
     ├── layout/               # LayoutComponent, FooterComponent
@@ -87,7 +90,7 @@ The application follows the **Smart/Dumb component pattern**:
 - Secure authentication — login and register with username or email
 - HttpOnly cookie session management — JWT (15 min) + Refresh Token (7 days)
 - Silent token refresh — automatic JWT renewal via `AuthInterceptor` on 401 responses
-- Session restoration on page reload via `AuthGuard`
+- Session restoration on page load — `LandingComponent` on the public page, `AuthGuard` on protected routes
 - Full CRUD on projects and tasks
 - Task filtering by status and priority — persisted in URL query params
 - Client-side project search — real-time filtering with Angular Signals
@@ -261,7 +264,7 @@ export const projectResolver: ResolveFn<Project> = (route) => {
 - [ ] `TaskTableComponent` — add sortable columns
 - [ ] `GET /api/auth/me` — eliminate all client-side session state
 - [ ] i18n — Angular internationalization for UI text
-- [ ] Unit tests with Vitest
+- [ ] Unit tests — Vitest and the `@angular/build:unit-test` builder are already configured, no spec file written yet
 
 ---
 
@@ -290,7 +293,7 @@ Every push triggers an automated pipeline:
 | Code formatting     | Prettier                   | .prettierrc rules                                      |
 | Code quality        | ESLint                     | Angular ESLint rules                                   |
 | Build               | Angular CLI                | Production build                                       |
-| Dependency CVEs     | npm audit                  | moderate+ severity                                     |
+| Dependency CVEs     | npm audit                  | moderate+ severity, reported without blocking          |
 | Docker image scan   | Trivy                      | Blocks on CRITICAL CVEs                                |
 | Deployment          | SSH + shared deploy script | Hetzner VPS, per-service entry point                   |
 | Digest verification | Docker inspect             | Running container checked against the published digest |
