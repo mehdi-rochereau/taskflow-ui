@@ -9,3 +9,7 @@ mat-dialog-content {
     overflow-wrap: break-word;
   }
 }
+
+.confirm-danger {
+  color: var(--mat-sys-error);
+}

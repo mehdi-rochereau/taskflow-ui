@@ -25,7 +25,7 @@
 
     <div class="info-grid">
       <div class="info-item">
-        <mat-icon svgIcon="calendar_today"></mat-icon>
+        <mat-icon svgIcon="calendar_today" aria-hidden="true"></mat-icon>
         <div>
           <span class="label">Due date</span>
           <span>{{ task.dueDate ? (task.dueDate | date: 'mediumDate') : '—' }}</span>
@@ -33,7 +33,7 @@
       </div>
 
       <div class="info-item">
-        <mat-icon svgIcon="schedule"></mat-icon>
+        <mat-icon svgIcon="schedule" aria-hidden="true"></mat-icon>
         <div>
           <span class="label">Created</span>
           <span>{{ task.createdAt | date: 'mediumDate' }}</span>

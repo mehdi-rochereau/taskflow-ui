@@ -1,22 +1,20 @@
 @if (isLoading) {
   <div class="spinner-container">
-    <mat-spinner />
+    <mat-spinner aria-label="Loading tasks" />
   </div>
 } @else if (tasks.length === 0) {
   @if (hasActiveFilter) {
     <div class="empty-state">
-      <mat-icon svgIcon="search_off"></mat-icon>
+      <mat-icon svgIcon="search_off" aria-hidden="true"></mat-icon>
       <h2>No results found</h2>
       <p>No tasks match the selected filter</p>
     </div>
   } @else {
     <div class="empty-state">
-      <mat-icon svgIcon="assignment"></mat-icon>
+      <mat-icon svgIcon="assignment" aria-hidden="true"></mat-icon>
       <h2>No tasks yet</h2>
       <p>Create your first task to get started</p>
-      <button mat-flat-button color="primary" (click)="createTask.emit()">
-        Create your first task
-      </button>
+      <button mat-flat-button (click)="createTask.emit()">Create your first task</button>
     </div>
   }
 } @else {
@@ -67,18 +65,27 @@
       <ng-container matColumnDef="actions">
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let task">
-          <button mat-icon-button (click)="view.emit(task); $event.stopPropagation()">
-            <mat-icon svgIcon="visibility"></mat-icon>
-          </button>
-          <button mat-icon-button (click)="edit.emit({ event: $event, task })">
-            <mat-icon svgIcon="edit"></mat-icon>
+          <button
+            mat-icon-button
+            (click)="view.emit(task); $event.stopPropagation()"
+            [attr.aria-label]="'View task ' + task.title"
+          >
+            <mat-icon svgIcon="visibility" aria-hidden="true"></mat-icon>
           </button>
           <button
             mat-icon-button
-            style="color: var(--mat-sys-error)"
-            (click)="delete.emit({ event: $event, task })"
+            (click)="edit.emit({ event: $event, task })"
+            [attr.aria-label]="'Edit task ' + task.title"
           >
-            <mat-icon svgIcon="delete"></mat-icon>
+            <mat-icon svgIcon="edit" aria-hidden="true"></mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="delete-action"
+            (click)="delete.emit({ event: $event, task })"
+            [attr.aria-label]="'Delete task ' + task.title"
+          >
+            <mat-icon svgIcon="delete" aria-hidden="true"></mat-icon>
           </button>
         </mat-cell>
       </ng-container>

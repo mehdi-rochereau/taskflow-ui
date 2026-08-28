@@ -23,7 +23,7 @@
         <mat-label>Status</mat-label>
         <mat-select formControlName="status">
           @for (status of statuses; track status) {
-            <mat-option [value]="status">{{ status }}</mat-option>
+            <mat-option [value]="status">{{ status | taskStatus }}</mat-option>
           }
         </mat-select>
         @for (error of getFieldErrors('status'); track error) {
@@ -35,7 +35,7 @@
         <mat-label>Priority</mat-label>
         <mat-select formControlName="priority">
           @for (priority of priorities; track priority) {
-            <mat-option [value]="priority">{{ priority }}</mat-option>
+            <mat-option [value]="priority">{{ priority | taskPriority }}</mat-option>
           }
         </mat-select>
         @for (error of getFieldErrors('priority'); track error) {
