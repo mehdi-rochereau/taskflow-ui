@@ -140,7 +140,7 @@ The deployment pipeline integrates multiple security controls:
 | Principle                    | Implementation                                                   |
 | ---------------------------- | ---------------------------------------------------------------- |
 | **Defense in Depth**         | AuthGuard + AuthInterceptor + Spring Security + ownership checks |
-| **Least Privilege**          | Scoped cookies (`/api`, `/api/auth`), minimal localStorage usage |
+| **Least Privilege**          | Scoped cookies (`/api`, `/api/auth`), no client-side storage     |
 | **Fail Secure**              | Failed refresh → automatic logout and redirect to `/login`       |
 | **Separation of Concerns**   | Auth logic centralized in `AuthService` and `AuthInterceptor`    |
 | **No Security by Obscurity** | Security relies on proven standards (JWT, HttpOnly, SameSite)    |

@@ -3,12 +3,24 @@
   <div class="footer-content">
     <div class="footer-links">
       <span class="footer-label">API Documentation</span>
-      <a [href]="swaggerUrl" target="_blank" rel="noopener noreferrer" mat-button>
-        <mat-icon svgIcon="api"></mat-icon>
+      <a
+        [href]="swaggerUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        mat-button
+        aria-label="Swagger, opens in a new tab"
+      >
+        <mat-icon svgIcon="api" aria-hidden="true"></mat-icon>
         Swagger
       </a>
-      <a routerLink="/api-docs" target="_blank" rel="noopener noreferrer" mat-button>
-        <mat-icon svgIcon="description"></mat-icon>
+      <a
+        routerLink="/api-docs"
+        target="_blank"
+        rel="noopener noreferrer"
+        mat-button
+        aria-label="Redoc, opens in a new tab"
+      >
+        <mat-icon svgIcon="description" aria-hidden="true"></mat-icon>
         Redoc
       </a>
     </div>
@@ -19,12 +31,24 @@
 
     <div class="footer-links">
       <span class="footer-label">Developer</span>
-      <a [href]="githubUrl" target="_blank" rel="noopener noreferrer" mat-button>
-        <mat-icon svgIcon="code"></mat-icon>
+      <a
+        [href]="githubUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        mat-button
+        aria-label="GitHub, opens in a new tab"
+      >
+        <mat-icon svgIcon="code" aria-hidden="true"></mat-icon>
         GitHub
       </a>
-      <a [href]="linkedinUrl" target="_blank" rel="noopener noreferrer" mat-button>
-        <mat-icon svgIcon="work"></mat-icon>
+      <a
+        [href]="linkedinUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        mat-button
+        aria-label="LinkedIn, opens in a new tab"
+      >
+        <mat-icon svgIcon="work" aria-hidden="true"></mat-icon>
         LinkedIn
       </a>
     </div>

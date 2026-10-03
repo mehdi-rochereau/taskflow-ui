@@ -8,7 +8,7 @@
   <button mat-button (click)="onCancel()">
     {{ data.cancelLabel ?? 'Cancel' }}
   </button>
-  <button mat-raised-button style="color: var(--mat-sys-error)" (click)="onConfirm()">
+  <button mat-raised-button class="confirm-danger" (click)="onConfirm()">
     {{ data.confirmLabel ?? 'Delete' }}
   </button>
 </mat-dialog-actions>

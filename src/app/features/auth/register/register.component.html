@@ -1,7 +1,7 @@
-<div class="register-container">
+<main class="register-container">
   <mat-card>
     <a routerLink="/" class="brand">
-      <mat-icon svgIcon="task_alt"></mat-icon>
+      <mat-icon svgIcon="task_alt" aria-hidden="true"></mat-icon>
       <span>TaskFlow</span>
     </a>
 
@@ -39,8 +39,13 @@
             matSuffix
             type="button"
             (click)="showPassword.set(!showPassword())"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword()"
           >
-            <mat-icon [svgIcon]="showPassword() ? 'visibility_off' : 'visibility'"></mat-icon>
+            <mat-icon
+              [svgIcon]="showPassword() ? 'visibility_off' : 'visibility'"
+              aria-hidden="true"
+            ></mat-icon>
           </button>
           @for (error of getFieldErrors('password'); track error) {
             <mat-error>{{ error }}</mat-error>
@@ -59,9 +64,14 @@
             matSuffix
             type="button"
             (click)="showConfirmPassword.set(!showConfirmPassword())"
+            [attr.aria-label]="
+              showConfirmPassword() ? 'Hide password confirmation' : 'Show password confirmation'
+            "
+            [attr.aria-pressed]="showConfirmPassword()"
           >
             <mat-icon
               [svgIcon]="showConfirmPassword() ? 'visibility_off' : 'visibility'"
+              aria-hidden="true"
             ></mat-icon>
           </button>
           @for (error of getFieldErrors('confirmPassword'); track error) {
@@ -73,7 +83,7 @@
           <p class="error-message">{{ globalError() }}</p>
         }
 
-        <button mat-flat-button color="primary" type="submit" [disabled]="isLoading()">
+        <button mat-flat-button type="submit" [disabled]="isLoading()">
           {{ isLoading() ? 'Creating account...' : 'Sign up' }}
         </button>
       </form>
@@ -83,4 +93,4 @@
       <a routerLink="/login">Already have an account? Sign in</a>
     </mat-card-actions>
   </mat-card>
-</div>
+</main>

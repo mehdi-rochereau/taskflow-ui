@@ -8,6 +8,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { Task, TaskPriority, TaskRequest, TaskStatus } from '../../../core/models/task.model';
 import { getFieldErrors } from '../../../shared/utils/form-errors';
+import { TaskPriorityPipe } from '../../../shared/pipes/task-priority-pipe';
+import { TaskStatusPipe } from '../../../shared/pipes/task-status-pipe';
 
 /**
  * Data contract for `TaskFormDialogComponent`.
@@ -46,6 +48,8 @@ export interface TaskDialogData {
     MatButtonModule,
     MatSelectModule,
     MatDatepickerModule,
+    TaskPriorityPipe,
+    TaskStatusPipe,
   ],
   templateUrl: './task-form-dialog.component.html',
   styleUrl: './task-form-dialog.component.scss',

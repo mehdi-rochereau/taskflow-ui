@@ -1,15 +1,15 @@
 <div class="project-header">
   <div class="header-top">
-    <button mat-icon-button routerLink="/projects">
-      <mat-icon svgIcon="arrow_back"></mat-icon>
+    <button mat-icon-button routerLink="/projects" aria-label="Back to projects">
+      <mat-icon svgIcon="arrow_back" aria-hidden="true"></mat-icon>
     </button>
     <div class="header-right">
-      <button mat-flat-button color="primary" (click)="createTask.emit()" [disabled]="isSubmitting">
+      <button mat-flat-button (click)="createTask.emit()" [disabled]="isSubmitting">
         <span class="btn-content">
           @if (isSubmitting) {
-            <mat-spinner diameter="20" />
+            <mat-spinner diameter="20" aria-label="Creating task" />
           } @else {
-            <mat-icon svgIcon="add"></mat-icon>
+            <mat-icon svgIcon="add" aria-hidden="true"></mat-icon>
           }
           New Task
         </span>

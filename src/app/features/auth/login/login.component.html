@@ -1,8 +1,8 @@
-<div class="login-container">
+<main class="login-container">
   <mat-card>
     <div class="brand">
       <a routerLink="/" class="brand">
-        <mat-icon svgIcon="task_alt"></mat-icon>
+        <mat-icon svgIcon="task_alt" aria-hidden="true"></mat-icon>
         <span>TaskFlow</span>
       </a>
     </div>
@@ -32,8 +32,13 @@
             matSuffix
             type="button"
             (click)="showPassword.set(!showPassword())"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword()"
           >
-            <mat-icon [svgIcon]="showPassword() ? 'visibility_off' : 'visibility'"></mat-icon>
+            <mat-icon
+              [svgIcon]="showPassword() ? 'visibility_off' : 'visibility'"
+              aria-hidden="true"
+            ></mat-icon>
           </button>
           @if (form.get('password')?.invalid && form.get('password')?.touched) {
             <mat-error>This field is required</mat-error>
@@ -54,4 +59,4 @@
       <a routerLink="/register">No account yet? Sign up</a>
     </mat-card-actions>
   </mat-card>
-</div>
+</main>

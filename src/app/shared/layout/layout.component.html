@@ -2,11 +2,16 @@
   <a routerLink="/" class="brand">TaskFlow</a>
   <span class="spacer"></span>
 
-  <button mat-button [matMenuTriggerFor]="profileMenu" class="avatar-btn">
+  <button
+    mat-button
+    [matMenuTriggerFor]="profileMenu"
+    class="avatar-btn"
+    [attr.aria-label]="username() ? 'Profile menu for ' + username() : 'Profile menu'"
+  >
     @if (username()) {
       <div class="avatar">{{ getInitials() }}</div>
     } @else {
-      <mat-icon svgIcon="account_circle"></mat-icon>
+      <mat-icon svgIcon="account_circle" aria-hidden="true"></mat-icon>
     }
   </button>
 
@@ -22,7 +27,7 @@
     <mat-divider />
 
     <button mat-menu-item (click)="logout()">
-      <mat-icon svgIcon="logout"></mat-icon>
+      <mat-icon svgIcon="logout" aria-hidden="true"></mat-icon>
       Logout
     </button>
   </mat-menu>
