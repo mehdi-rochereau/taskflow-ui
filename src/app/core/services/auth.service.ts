@@ -10,8 +10,9 @@ import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.mode
  *
  * Uses HttpOnly cookies for JWT storage — the browser sends the `jwt` cookie
  * automatically on every request when withCredentials is enabled.
- * No sensitive data is stored in localStorage — username and email are kept
- * in memory as readonly Signals and restored via the silent refresh mechanism.
+ * Nothing is stored client-side, neither localStorage nor sessionStorage —
+ * username and email are kept in memory as readonly Signals and restored via
+ * the silent refresh mechanism.
  *
  * Token lifecycle:
  * - JWT cookie (`jwt`): valid 15 minutes — scoped to `/api`

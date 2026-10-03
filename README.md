@@ -96,6 +96,7 @@ The application follows the **Smart/Dumb component pattern**:
 - Client-side project search — real-time filtering with Angular Signals
 - Task progress bar — visual completion ratio per project
 - Responsive design — mobile and desktop layouts
+- Accessible interface — WCAG 2.1 AA colour contrast, an accessible name on every control, one `main` landmark per page
 - Angular Material 3 theming — Cyan/Orange palette
 - Embedded Redoc API documentation at `/api-docs`
 - Notification system — success and error snackbars
@@ -280,6 +281,17 @@ for local component state while remaining interoperable with Observables.
 
 **OnPush change detection on all dumb components**
 Reduces unnecessary re-renders by only checking components when their `@Input()` references change.
+
+**Darkened brand colours on the tech stack badges**
+The badges carry darkened variants of the official brand colours rather than the colours
+themselves. White text on several of the originals fell as low as 1.5:1, against the 4.5:1
+WCAG AA demands under 18px. Each channel is scaled by the same factor, which lowers the
+lightness without shifting the hue, so the brands stay recognisable.
+
+**`--mat-sys-on-surface-variant` for secondary text**
+Secondary text uses the Material token meant for text on a surface, not `--mat-sys-outline`,
+which is a stroke token meant for borders. The misuse was also a defect: `outline` measures
+3.86:1 on the container background, below the AA threshold.
 
 ---
 
