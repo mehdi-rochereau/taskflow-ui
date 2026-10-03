@@ -98,50 +98,56 @@ export class LandingComponent implements OnInit {
       icon: 'api',
       title: 'REST API',
       description:
-        'Spring Boot 3.5 REST API with Springdoc OpenAPI, Swagger UI, Redoc, Flyway migrations and 80%+ test coverage.',
+        'Spring Boot 3.5 REST API with Springdoc OpenAPI, Swagger UI, Redoc, Flyway migrations and 95% test coverage.',
     },
   ];
 
   /**
    * Tech stack grouped by category — displayed as colored badges in the stack section.
    * Each entry contains a label and a brand color for the badge background.
+   *
+   * Every colour is a darkened variant of the official brand colour, chosen so
+   * that white text reaches the 4.5:1 ratio WCAG AA requires under 18px. The
+   * hue is preserved: the three channels are scaled by the same factor, which
+   * moves the lightness without shifting the colour. Adding an entry means
+   * checking its contrast, there is no longer any runtime safeguard.
    */
   readonly stack: Record<string, { label: string; color: string }[]> = {
     Frontend: [
-      { label: 'Angular 19', color: '#DD0031' },
-      { label: 'TypeScript', color: '#3178C6' },
+      { label: 'Angular 21', color: '#DD0031' },
+      { label: 'TypeScript', color: '#2E70BA' },
       { label: 'Angular Material 3', color: '#757575' },
       { label: 'Signals', color: '#DD0031' },
       { label: 'RxJS', color: '#B7178C' },
-      { label: 'Redoc', color: '#E83E8C' },
+      { label: 'Redoc', color: '#C73578' },
     ],
     Backend: [
-      { label: 'Spring Boot 3.5', color: '#6DB33F' },
-      { label: 'Java 21', color: '#ED8B00' },
+      { label: 'Spring Boot 3.5', color: '#4D7E2C' },
+      { label: 'Java 21', color: '#A66100' },
       { label: 'JWT HttpOnly', color: '#000000' },
       { label: 'Flyway', color: '#CC0200' },
-      { label: 'JUnit 5 / Mockito', color: '#25A162' },
-      { label: 'Swagger UI', color: '#85EA2D' },
+      { label: 'JUnit 5 / Mockito', color: '#1E804E' },
+      { label: 'Swagger UI', color: '#477C18' },
       { label: 'Gradle', color: '#02303A' },
-      { label: 'Codecov', color: '#F01F7A' },
+      { label: 'Codecov', color: '#D41B6C' },
     ],
     Security: [
       { label: 'OWASP Sanitizer', color: '#000099' },
-      { label: 'Bucket4j', color: '#FF6B35' },
+      { label: 'Bucket4j', color: '#BC4F27' },
       { label: 'Trivy', color: '#1904DA' },
       { label: 'GitLeaks', color: '#CE3262' },
       { label: 'BCrypt', color: '#4A4A4A' },
       { label: 'OWASP Dep. Check', color: '#000099' },
     ],
     Infrastructure: [
-      { label: 'Docker', color: '#2496ED' },
-      { label: 'Nginx', color: '#009639' },
-      { label: 'GitHub Actions', color: '#2088FF' },
+      { label: 'Docker', color: '#1C75B9' },
+      { label: 'Nginx', color: '#008131' },
+      { label: 'GitHub Actions', color: '#1A6FD0' },
       { label: 'Hetzner VPS', color: '#D50C2D' },
       { label: "Let's Encrypt", color: '#003A70' },
       { label: 'ghcr.io', color: '#24292E' },
-      { label: 'Docker Compose', color: '#2496ED' },
-      { label: 'UFW / Fail2ban', color: '#E95420' },
+      { label: 'Docker Compose', color: '#1C75B9' },
+      { label: 'UFW / Fail2ban', color: '#C3461B' },
     ],
   };
 

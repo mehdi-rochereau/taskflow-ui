@@ -101,7 +101,7 @@
     justify-content: center;
     gap: 6px;
     font-size: 0.85rem;
-    opacity: 0.75;
+    opacity: 0.85;
     margin: 0;
 
     mat-icon {
@@ -131,7 +131,7 @@
 
 .section-subtitle {
   text-align: center;
-  color: var(--mat-sys-outline);
+  color: var(--mat-sys-on-surface-variant);
   margin: 0 0 48px;
 }
 
@@ -148,7 +148,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--mat-sys-outline);
+    color: var(--mat-sys-on-surface-variant);
     margin: 0 0 12px;
   }
 }
@@ -196,7 +196,7 @@
   p {
     margin: 0;
     font-size: 0.875rem;
-    color: var(--mat-sys-outline);
+    color: var(--mat-sys-on-surface-variant);
     line-height: 1.6;
   }
 }
@@ -229,7 +229,7 @@
 
 .try-text {
   p {
-    color: var(--mat-sys-outline);
+    color: var(--mat-sys-on-surface-variant);
     margin: 0 0 24px;
   }
 }
@@ -310,7 +310,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--mat-sys-outline);
+  color: var(--mat-sys-on-surface-variant);
   margin: 0;
 }
 
