@@ -9,7 +9,8 @@
 # Jobs:
 #   ci → gitleaks, install, prettier, lint, build, npm audit
 #   cd → docker build, trivy scan, block on CRITICAL CVE, deploy VPS,
-#        health check, rollback, smoke tests
+#        verify digest, health check, rollback, smoke tests,
+#        verify security headers
 #
 # Security model:
 #   - GITHUB_TOKEN used for all registry operations (no PAT)
@@ -36,10 +37,10 @@ name: CI/CD
 on:
   push:
     # CI runs on every branch push to catch regressions early
-    branches: [ "**" ]
+    branches: ['**']
   pull_request:
     # CI also runs on PRs — CD is skipped for pull_request events
-    branches: [ "main" ]
+    branches: ['main']
   workflow_dispatch:
     # Manual trigger — allows forcing a CD deployment from any branch
     # Useful for hotfixes or testing the pipeline without a code change
@@ -76,7 +77,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   # ── CI ─────────────────────────────────────────────────────
   # Runs on every push and pull request.
   # Validates code formatting, linting, build and security
@@ -89,7 +89,6 @@ jobs:
     timeout-minutes: 20
 
     steps:
-
       # ── Checkout ─────────────────────────────────────────
       # v5 and not v6: v5.0.0 is the release that moves the runtime to Node 24
       # and needs a v2.327.1 runner. v6 additionally relocates the persisted
@@ -247,7 +246,8 @@ jobs:
   #
   # Flow: download build → copy to browser-dist → docker build →
   #       trivy scan → upload report → block on CRITICAL CVE →
-  #       deploy VPS → health check → rollback if needed → smoke tests
+  #       deploy VPS → verify digest → health check → rollback if needed →
+  #       smoke tests → verify security headers
   cd:
     name: CD
     runs-on: ubuntu-latest
@@ -263,7 +263,6 @@ jobs:
       )
 
     steps:
-
       # ── Checkout ─────────────────────────────────────────
       # Required for Docker build context (Dockerfile.cd, nginx.conf).
       # Angular build itself is downloaded from CI artifact below.
@@ -584,6 +583,154 @@ jobs:
             exit 1
           fi
 
+      # ── Security headers ─────────────────────────────────────────────
+      # Proves that the headers reaching a browser are the ones this
+      # repository declares, instead of trusting that the deployment carried
+      # them. Two incidents came from that blind spot: issue #43, where an
+      # add_header in a nested location cancelled all six inherited headers,
+      # and issue #44, where the CSP lacked the connect-src entry the API
+      # calls need.
+      #
+      # The expected values are read from security-headers.conf, never
+      # written here. The file stays the single source of truth, so a policy
+      # change cannot be applied in one place and forgotten in the other.
+      #
+      # This detects divergence between production and the repository, not an
+      # incorrect policy: a wrong CSP correctly deployed passes, since both
+      # sides of the comparison come from the same file. Catching that needs a
+      # real browser, which this pipeline deliberately does not run.
+      #
+      # A failure here does not trigger the rollback, for the same reason as
+      # the digest verification: it surfaces the problem instead of hiding it.
+      #
+      # The base URL goes through envs rather than being interpolated into the
+      # script body, so the value travels as data and never becomes part of
+      # the executed shell source.
+      - name: Verify security headers
+        id: headers
+        env:
+          BASE_URL: ${{ env.UI_BASE_URL }}
+        run: |
+          set -euo pipefail
+
+          # ── Expected headers ───────────────────────────────────────────
+          # Each matching line yields "Name<TAB>value". Comment and blank
+          # lines match nothing and disappear, which leaves exactly the six
+          # declarations. GNU sed is assumed for \t in the replacement, which
+          # ubuntu-latest provides.
+          EXPECTED=$(sed -n 's/^add_header[[:space:]]\+\([^[:space:]]\+\)[[:space:]]\+"\(.*\)"[[:space:]]\+always;[[:space:]]*$/\1\t\2/p' security-headers.conf)
+
+          # An empty result means the file was reformatted and the parser no
+          # longer fits it. Without this guard the loop below would iterate
+          # over nothing and the step would pass while checking zero headers,
+          # which is worse than having no check at all.
+          if [ -z "$EXPECTED" ]; then
+            echo "❌ No add_header declaration matched in security-headers.conf"
+            echo "The parser no longer fits the file, the check would silently pass."
+            exit 1
+          fi
+
+          echo "Expected headers, read from security-headers.conf:"
+          printf '%s\n' "$EXPECTED" | sed 's/\t/ = /'
+          echo
+
+          # ── Static asset to probe ──────────────────────────────────────
+          # The chunk filename carries a build hash, so it is taken from the
+          # build output on disk rather than parsed out of the served HTML.
+          # browser-dist/ was populated by the "Prepare build for Docker"
+          # step earlier in this job.
+          #
+          # A glob loop and not find piped into head: under pipefail, a
+          # producer killed by SIGPIPE when head exits early is reported as a
+          # failure. Same trap already documented in the digest step.
+          CHUNK=""
+          for CANDIDATE in browser-dist/main-*.js; do
+            [ -e "$CANDIDATE" ] || break
+            CHUNK=$(basename "$CANDIDATE")
+            break
+          done
+
+          if [ -z "$CHUNK" ]; then
+            echo "❌ No main-*.js found in browser-dist"
+            echo "The static asset location block cannot be probed."
+            exit 1
+          fi
+
+          FAILED=0
+
+          # Two paths, one per location block that re-includes the snippet.
+          # The root reaches the index.html block through the internal
+          # redirect of try_files, the chunk reaches the static asset block.
+          # Inheritance from server level is not probed: it is the one that
+          # kept working throughout the #43 incident.
+          #
+          # The variable is not named PATH: overwriting it would break every
+          # command lookup in this shell.
+          for TARGET in "/" "/$CHUNK"; do
+            URL="${BASE_URL}${TARGET}"
+            echo "── $URL"
+
+            # -D - writes the response headers to stdout, -o /dev/null drops
+            # the body. No -L: the headers of the response actually served at
+            # this URL are what matters, not those of a redirect target.
+            # tr removes the carriage return ending every HTTP header line,
+            # which would otherwise stay inside the value and defeat every
+            # comparison.
+            if ! RESPONSE=$(curl -s -D - -o /dev/null "$URL" | tr -d '\r'); then
+              echo "  ❌ request failed"
+              FAILED=1
+              echo
+              continue
+            fi
+
+            # Status line is "HTTP/2 200" or "HTTP/1.1 200 OK", second field
+            # in both. Checked because a 404 on the chunk would still carry
+            # the six headers, thanks to always, and would otherwise pass.
+            STATUS=$(printf '%s\n' "$RESPONSE" | head -n 1 | awk '{print $2}')
+            if [ "$STATUS" != "200" ]; then
+              echo "  ❌ HTTP $STATUS, expected 200"
+              FAILED=1
+              echo
+              continue
+            fi
+
+            # Here-string and not a pipe: a piped while runs in a subshell and
+            # every FAILED=1 set inside it would be lost on exit.
+            while IFS=$'\t' read -r NAME VALUE; do
+
+              # grep exits 1 when nothing matches, which set -e would turn
+              # into a step failure, hence the guard on both captures.
+              # -i because header names are case-insensitive on the wire.
+              COUNT=$(printf '%s\n' "$RESPONSE" | grep -ic "^${NAME}:" || true)
+              SERVED=$(printf '%s\n' "$RESPONSE" | grep -i "^${NAME}:" | sed 's/^[^:]*:[[:space:]]*//' || true)
+
+              if [ "$COUNT" -eq 0 ]; then
+                echo "  ❌ MISSING    $NAME"
+                FAILED=1
+              elif [ "$COUNT" -gt 1 ]; then
+                echo "  ❌ DUPLICATE  $NAME sent $COUNT times"
+                FAILED=1
+              elif [ "$SERVED" != "$VALUE" ]; then
+                echo "  ❌ MISMATCH   $NAME"
+                echo "        expected  $VALUE"
+                echo "        served    $SERVED"
+                FAILED=1
+              else
+                echo "  ✅ $NAME"
+              fi
+
+            done <<< "$EXPECTED"
+
+            echo
+          done
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "❌ Production does not serve the headers declared in security-headers.conf"
+            exit 1
+          fi
+
+          echo "✅ All declared security headers match on every probed path"
+
       # ── CD Summary ───────────────────────────────────────
       # Generates a deployment summary visible in the Actions UI.
       # Includes image digest for traceability — links a deployment
@@ -601,6 +748,7 @@ jobs:
           echo "| 🔎 Digest Verification | ${{ steps.verify.outcome == 'success' && '✅ Digest matches' || '❌ Mismatch or not verified' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| ❤️ Health Check | ${{ steps.health.outcome == 'success' && '✅ UI is UP' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🧪 Smoke Tests | ${{ steps.smoke.outcome == 'success' && '✅ All passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🛡️ Security Headers | ${{ steps.headers.outcome == 'success' && '✅ Match repository' || '❌ Mismatch' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** \`${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
           echo "**Digest:** \`${{ steps.build.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
