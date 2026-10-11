@@ -113,6 +113,7 @@ The application follows the **Smart/Dumb component pattern**:
 ## Prerequisites
 
 - Node.js 22+
+- npm 11 or later — the 10.9.x bundled with Node 22 crashes on a fresh `npm install` (npm/cli#9787). Run `npm install -g npm@11`.
 - Angular CLI 21+
 - [taskflow-api](https://github.com/mehdi-rochereau/taskflow-api) running on `http://localhost:8082`
 
@@ -289,6 +290,13 @@ themselves. White text on several of the originals fell as low as 1.5:1, against
 WCAG AA demands under 18px. Each channel is scaled by the same factor, which lowers the
 lightness without shifting the hue, so the brands stay recognisable.
 
+**npm audit scoped to production dependencies**
+The blocking gate runs with `--omit=dev`, so only packages that reach the browser can stop a
+deployment. A gate over the whole tree would turn red at the next advisory against a build tool,
+forcing an unrelated emergency patch before any delivery. Development dependencies are still
+scanned by a second, non-blocking step: they are not reachable by a visitor, but a compromised
+build tool can inject code into the shipped bundle.
+
 **`--mat-sys-on-surface-variant` for secondary text**
 Secondary text uses the Material token meant for text on a surface, not `--mat-sys-outline`,
 which is a stroke token meant for borders. The misuse was also a defect: `outline` measures
@@ -300,20 +308,21 @@ which is a stroke token meant for borders. The misuse was also a defect: `outlin
 
 Every push triggers an automated pipeline:
 
-| Step                | Tool                       | Details                                                |
-| ------------------- | -------------------------- | ------------------------------------------------------ |
-| Secret scanning     | GitLeaks                   | Full history scan                                      |
-| Code formatting     | Prettier                   | .prettierrc rules                                      |
-| Code quality        | ESLint                     | Angular ESLint rules                                   |
-| Build               | Angular CLI                | Production build                                       |
-| Dependency CVEs     | npm audit                  | moderate+ severity, reported without blocking          |
-| Docker image scan   | Trivy                      | Blocks on CRITICAL CVEs                                |
-| Deployment          | SSH + shared deploy script | Hetzner VPS, per-service entry point                   |
-| Digest verification | Docker inspect             | Running container checked against the published digest |
-| Health check        | curl                       | Site root polled every 10 s, 2 min timeout             |
-| Rollback            | Automatic                  | On health check failure                                |
-| Smoke tests         | curl                       | UI and API public endpoints return 200                 |
-| Security headers    | curl                       | Headers served compared to `security-headers.conf`     |
+| Step                 | Tool                       | Details                                                 |
+| -------------------- | -------------------------- | ------------------------------------------------------- |
+| Secret scanning      | GitLeaks                   | Full history scan                                       |
+| Code formatting      | Prettier                   | .prettierrc rules                                       |
+| Code quality         | ESLint                     | Angular ESLint rules                                    |
+| Build                | Angular CLI                | Production build                                        |
+| Dependency CVEs      | npm audit                  | Production dependencies, moderate+, blocks the pipeline |
+| Full dependency scan | npm audit                  | All dependencies, moderate+, reported without blocking  |
+| Docker image scan    | Trivy                      | Blocks on CRITICAL CVEs                                 |
+| Deployment           | SSH + shared deploy script | Hetzner VPS, per-service entry point                    |
+| Digest verification  | Docker inspect             | Running container checked against the published digest  |
+| Health check         | curl                       | Site root polled every 10 s, 2 min timeout              |
+| Rollback             | Automatic                  | On health check failure                                 |
+| Smoke tests          | curl                       | UI and API public endpoints return 200                  |
+| Security headers     | curl                       | Headers served compared to `security-headers.conf`      |
 
 Push to `main` → CI passes → Docker image built → deployed to production automatically.
 

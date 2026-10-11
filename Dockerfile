@@ -9,6 +9,13 @@ WORKDIR /app
 # Copy dependency manifests first to leverage Docker layer caching
 # node_modules is only reinstalled when package*.json changes
 COPY package*.json ./
+
+# node:22-alpine ships npm 10.9.x while package.json declares npm 11, and the
+# gap is deliberate. npm ci installs the resolution already written in the
+# lockfile without recomputing the dependency graph, which is the only
+# operation npm 10 gets wrong (npm/cli#9787). Pinning npm here would add a
+# layer and a third copy of the version string for no gain: this stage never
+# resolves dependencies and never audits them.
 RUN npm ci --ignore-scripts
 
 # Copy source files and build for production

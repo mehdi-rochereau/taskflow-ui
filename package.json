@@ -10,10 +10,11 @@
     "lint": "ng lint",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss}\"",
-    "audit": "npm audit --audit-level=moderate"
+    "audit": "npm audit --omit=dev --audit-level=moderate",
+    "audit:full": "npm audit --audit-level=moderate"
   },
   "private": true,
-  "packageManager": "npm@10.9.3",
+  "packageManager": "npm@11.21.0",
   "dependencies": {
     "@angular/cdk": "^21.2.7",
     "@angular/common": "^21.2.0",
