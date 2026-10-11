@@ -88,15 +88,21 @@ listed separately for that reason.
 Every header is declared with `always`, so it appears on error responses too,
 not only on 2xx and 3xx.
 
-| Header                      | Value                                                                                                                                                                                                 |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `X-Frame-Options`           | `DENY`                                                                                                                                                                                                |
-| `X-Content-Type-Options`    | `nosniff`                                                                                                                                                                                             |
-| `Referrer-Policy`           | `no-referrer`                                                                                                                                                                                         |
-| `X-XSS-Protection`          | `1; mode=block`                                                                                                                                                                                       |
-| `Permissions-Policy`        | `geolocation=(), microphone=(), camera=()`                                                                                                                                                            |
-| `Content-Security-Policy`   | `default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'self'; connect-src 'self' https://api.taskflow.mehdi-rochereau.dev; frame-ancestors 'none'` |
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` — set by the reverse proxy                                                                                                                                      |
+The CD pipeline verifies these values on every deployment. It reads the
+declarations from `security-headers.conf`, requests the site root and a
+JavaScript chunk in production, and fails the run if any header is missing,
+duplicated, or carries a different value. The expected values are never
+duplicated into the workflow, so this file remains the single source of truth.
+
+| Header                      | Value                                                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `X-Frame-Options`           | `DENY`                                                                                                                                                                                                 |
+| `X-Content-Type-Options`    | `nosniff`                                                                                                                                                                                              |
+| `Referrer-Policy`           | `no-referrer`                                                                                                                                                                                          |
+| `X-XSS-Protection`          | `1; mode=block`                                                                                                                                                                                        |
+| `Permissions-Policy`        | `geolocation=(), microphone=(), camera=()`                                                                                                                                                             |
+| `Content-Security-Policy`   | `default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'self'; connect-src 'self' https://api.taskflow.mehdi-rochereau.dev; frame-ancestors 'none';` |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` — set by the reverse proxy                                                                                                                                       |
 
 ### Rate Limiting
 
@@ -130,6 +136,7 @@ The deployment pipeline integrates multiple security controls:
 | Branch protection       | GitHub Rulesets      | CI must pass before any merge to main                                                             |
 | Immutable deploys       | Image digest         | Trivy scans the exact pushed digest                                                               |
 | Deployment verification | Image digest         | The running container is checked against the digest published by the run, before the health check |
+| Header verification     | curl                 | The six headers served in production are compared to security-headers.conf, on two paths          |
 | Automatic rollback      | Shared deploy script | Previous image ID restored if health check fails                                                  |
 | Deployment guardrails   | Shared deploy script | Refuses to deploy if taskflow-db is unhealthy or config files are missing                         |
 

@@ -62,6 +62,7 @@ src/app/
 │   └── services/             # AuthService, ProjectService, TaskService, NotificationService
 ├── features/                 # Feature modules
 │   ├── auth/                 # LoginComponent, RegisterComponent
+│   ├── landing/              # LandingComponent, public landing page
 │   └── projects/             # ProjectListComponent, ProjectDetailComponent
 │       ├── project-header/   # Smart/Dumb: project header with back button
 │       ├── task-filters/     # Smart/Dumb: status and priority filters
@@ -309,8 +310,10 @@ Every push triggers an automated pipeline:
 | Docker image scan   | Trivy                      | Blocks on CRITICAL CVEs                                |
 | Deployment          | SSH + shared deploy script | Hetzner VPS, per-service entry point                   |
 | Digest verification | Docker inspect             | Running container checked against the published digest |
-| Health check        | Nginx                      | `/healthz`, 2 min retry                                |
+| Health check        | curl                       | Site root polled every 10 s, 2 min timeout             |
 | Rollback            | Automatic                  | On health check failure                                |
+| Smoke tests         | curl                       | UI and API public endpoints return 200                 |
+| Security headers    | curl                       | Headers served compared to `security-headers.conf`     |
 
 Push to `main` → CI passes → Docker image built → deployed to production automatically.
 
