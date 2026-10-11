@@ -129,7 +129,8 @@ The deployment pipeline integrates multiple security controls:
 | Control                 | Tool                 | Details                                                                                           |
 | ----------------------- | -------------------- | ------------------------------------------------------------------------------------------------- |
 | Secret scanning         | GitLeaks             | Full git history scanned on every push                                                            |
-| Dependency CVEs         | npm audit            | Reports on moderate severity; does not block, the step runs with continue-on-error                |
+| Dependency CVEs         | npm audit            | Production dependencies, moderate and above, blocks the pipeline                                  |
+| Full dependency scan    | npm audit            | Every dependency including build tooling, moderate and above, reported without blocking           |
 | Docker image scan       | Trivy                | Blocks deployment on CRITICAL CVEs                                                                |
 | Least privilege         | GITHUB_TOKEN         | No PAT — scoped token with minimal permissions                                                    |
 | Dedicated SSH key       | Ed25519              | GitHub Actions-only key, separate from developer keys                                             |
@@ -183,7 +184,6 @@ document head, so removing it breaks the rendering. Scripts are not affected:
 - [ ] Revalidate the session when a tab regains focus, so that a logout in another tab is reflected without waiting for the next API call
 - [ ] Implement account deletion endpoint (`DELETE /api/users/me`) for GDPR compliance
 - [ ] Add `GET /api/auth/me` endpoint to eliminate any client-side session state
-- [ ] Patch the dependency vulnerabilities npm audit reports, then make the step blocking
 - [ ] OAuth2 Google + GitHub (planned)
 - [ ] Trivy scan on HIGH severity (currently CRITICAL only)
 
