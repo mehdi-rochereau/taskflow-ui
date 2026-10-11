@@ -7,7 +7,8 @@
 #      force_deploy enabled
 #
 # Jobs:
-#   ci → gitleaks, install, prettier, lint, build, npm audit
+#   ci → gitleaks, install, prettier, lint, build,
+#        npm audit (production, blocking) + full audit (informational)
 #   cd → docker build, trivy scan, block on CRITICAL CVE, deploy VPS,
 #        verify digest, health check, rollback, smoke tests,
 #        verify security headers
@@ -137,6 +138,24 @@ jobs:
           # instead of starting from nothing.
           package-manager-cache: false
 
+      # ── npm version ──────────────────────────────────────
+      # Node 22 bundles npm 10.9.x, which crashes with
+      # "Cannot read properties of null (reading 'edgesOut')" on certain peer
+      # dependency sets instead of reporting a conflict (npm/cli#9787). That bug
+      # is what kept package-lock.json from ever being re-resolved, and with it
+      # 37 unpatched advisories, 3 of them critical. It is fixed in npm 11.
+      #
+      # This job only reads the lockfile, which npm 10 does correctly, so the
+      # pin is a precaution rather than a present necessity: it keeps the npm
+      # reading the lockfile in the same major as the one that wrote it.
+      #
+      # The version is declared in package.json under packageManager and
+      # duplicated here. Corepack would remove the duplication but is still
+      # experimental for npm on Node 22, and a fragile pipeline costs more than
+      # one duplicated string.
+      - name: Pin npm to the major declared in package.json
+        run: npm install -g npm@11
+
       # ── npm cache ────────────────────────────────────────
       # Caches the npm module cache between runs.
       # The cache key includes a hash of package-lock.json —
@@ -212,14 +231,30 @@ jobs:
           # 7 days — long enough for manual CD trigger after CI completes
           retention-days: 7
 
-      # ── npm audit ────────────────────────────────────────
-      # Scans npm dependencies for known vulnerabilities.
-      # --audit-level=moderate fails on moderate and above (CVSS >= 4).
-      # continue-on-error: true — audit is informational for now.
-      # npm audit fix was run to resolve known issues (see package-lock.json).
-      - name: Run npm audit
+      # ── npm audit, production ────────────────────────────
+      # Blocking gate. --omit=dev restricts the scan to the dependencies that
+      # reach the browser, --audit-level=moderate fails on moderate and above.
+      # No continue-on-error: an advisory on shipped code stops the pipeline.
+      #
+      # Scoped rather than full on purpose. A blocking gate over the whole tree
+      # would turn red at the next advisory against vite or esbuild, forcing an
+      # unrelated emergency patch before any delivery. --omit=dev approximates
+      # what ships rather than measuring it, erring on the side of watching
+      # slightly too much: @angular/compiler is a production dependency but AOT
+      # compilation keeps it out of the bundle.
+      - name: Run npm audit on production dependencies
         id: audit
         run: npm run audit
+
+      # ── npm audit, full tree ─────────────────────────────
+      # Informational. Build and development dependencies are not exploitable
+      # by a visitor, but a compromised build tool can inject code into the
+      # shipped bundle, so they stay visible instead of being dropped.
+      # continue-on-error: true keeps them out of the gate while the report
+      # stays in the job log and in the summary below.
+      - name: Run npm audit on the full dependency tree
+        id: audit_full
+        run: npm run audit:full
         continue-on-error: true
 
       # ── GitHub Actions Step Summary ──────────────────────
@@ -237,7 +272,8 @@ jobs:
           echo "| 🎨 Prettier | ${{ steps.prettier.outcome == 'success' && '✅ Formatted' || '❌ Issues found' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔎 ESLint | ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🏗️ Build | ${{ steps.build.outcome == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔒 npm audit | ${{ steps.audit.outcome == 'success' && '✅ No vulnerabilities' || '⚠️ Check report' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔒 npm audit (production) | ${{ steps.audit.outcome == 'success' && '✅ No vulnerabilities' || '❌ Vulnerabilities found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 npm audit (full tree) | ${{ steps.audit_full.outcome == 'success' && '✅ No vulnerabilities' || '⚠️ Check report' }} |" >> $GITHUB_STEP_SUMMARY
 
   # ── CD ─────────────────────────────────────────────────────
   # Runs only on push to main or manual workflow_dispatch with
