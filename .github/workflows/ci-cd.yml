@@ -631,10 +631,6 @@ jobs:
           fi
 
           echo "Expected headers, read from security-headers.conf:"
-          # TEMPORARY, negative test for issue #55. Corrupts the expected
-          # value of X-Frame-Options so the comparison must fail.
-          # Remove before opening the pull request.
-          EXPECTED=$(printf '%s\n' "$EXPECTED" | sed 's/\tDENY$/\tSAMEORIGIN/')
           printf '%s\n' "$EXPECTED" | sed 's/\t/ = /'
           echo
 
