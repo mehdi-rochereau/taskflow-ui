@@ -87,7 +87,7 @@ appearance of a complete suite while verifying nothing.
 | `AuthService`, `ProjectService`, `TaskService`                  | unit      | ✅      |
 | `authInterceptor`, `errorInterceptor`, `credentialsInterceptor` | unit      | ✅      |
 | `authGuard`, `projectResolver`                                  | unit      | ✅      |
-| `LoginComponent`, `ProjectListComponent`, `TaskTableComponent`  | component | planned |
+| `LoginComponent`, `ProjectListComponent`, `TaskTableComponent`  | component | ✅      |
 | Coverage reporting and threshold                                | tooling   | planned |
 
 `NotificationService` is absent from this table on purpose. It wraps
@@ -95,11 +95,19 @@ appearance of a complete suite while verifying nothing.
 no state of its own. It will be exercised at the component level if a component
 test ever needs to assert that a message was shown.
 
+The component level deliberately leaves two things out. The dialog flows of
+`ProjectListComponent` orchestrate two other components, so a test here would
+measure those rather than this one. And the width transition of
+`TaskTableComponent`, from the wide column set to the narrow one, is uncovered:
+a fresh instance proves that the window width decides the rendered header, but
+driving a resize on a live instance never reached the table under jsdom. That
+mechanism disappears with the planned move to `BreakpointObserver`.
+
 ---
 
 ## Tests written because a defect happened
 
-Four entries so far, and this section is meant to grow.
+Five entries so far, and this section is meant to grow.
 
 `authInterceptor` was the first priority of the suite. A conflict between it and
 `errorInterceptor` on 401 responses reached production once, and the silent
@@ -123,3 +131,10 @@ integer, and four tests cover those cases.
 the fields match again. Two empty fields are equal, so that clearing branch runs
 on an empty form, and without its `hasError` guard it would erase the `required`
 error. A test pins that case.
+
+`LoginComponent` read `err.error.message` through a type assertion, which
+produces no runtime check whatsoever. A response carrying no body, such as the
+503 nginx returns during a deployment, leaves `err.error` null, and reading
+`message` off it threw inside the error callback. The form then stayed silent
+with nothing to explain the failure. An optional chain restores the fallback
+message, and a test flushes a 503 with a null body.

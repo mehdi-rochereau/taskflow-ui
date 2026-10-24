@@ -86,8 +86,12 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        const apiError = err.error as ApiError;
-        this.errorMessage.set(apiError.message ?? 'An unexpected error occurred');
+        // err.error holds the parsed response body, and it is null when the
+        // response carries none, which a 503 from nginx during a deployment
+        // does. The optional chain is what keeps the fallback reachable: the
+        // nullish coalescing operator below guards message, not apiError.
+        const apiError = err.error as ApiError | null;
+        this.errorMessage.set(apiError?.message ?? 'An unexpected error occurred');
       },
     });
   }
