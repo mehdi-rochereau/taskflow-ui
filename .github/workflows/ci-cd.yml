@@ -7,7 +7,7 @@
 #      force_deploy enabled
 #
 # Jobs:
-#   ci → gitleaks, install, prettier, lint, build,
+#   ci → gitleaks, install, prettier, lint, unit tests, build,
 #        npm audit (production, blocking) + full audit (informational)
 #   cd → docker build, trivy scan, block on CRITICAL CVE, deploy VPS,
 #        verify digest, health check, rollback, smoke tests,
@@ -203,6 +203,21 @@ jobs:
         id: lint
         run: npm run lint
 
+      # ── Unit tests ───────────────────────────────────────
+      # Runs the Vitest suite through the @angular/build:unit-test builder.
+      #
+      # Placed after ESLint and before the production build: a failing test is
+      # more informative than a failing build, and there is no point spending
+      # build time on code whose tests do not pass.
+      #
+      # npm test resolves to `ng test --watch=false`. Watch mode is the builder's
+      # default and would hang this job indefinitely, so the single-pass
+      # behaviour is wired into the script rather than repeated as a flag here.
+      # package.json keeps the watch loop under test:watch for local work.
+      - name: Run unit tests
+        id: test
+        run: npm test
+
       # ── Build ────────────────────────────────────────────
       # Compiles the Angular application for production.
       # --configuration production enables:
@@ -271,6 +286,7 @@ jobs:
           echo "| 📦 Install | ${{ steps.install.outcome == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🎨 Prettier | ${{ steps.prettier.outcome == 'success' && '✅ Formatted' || '❌ Issues found' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔎 ESLint | ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🧪 Unit tests | ${{ steps.test.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🏗️ Build | ${{ steps.build.outcome == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔒 npm audit (production) | ${{ steps.audit.outcome == 'success' && '✅ No vulnerabilities' || '❌ Vulnerabilities found' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔍 npm audit (full tree) | ${{ steps.audit_full.outcome == 'success' && '✅ No vulnerabilities' || '⚠️ Check report' }} |" >> $GITHUB_STEP_SUMMARY
