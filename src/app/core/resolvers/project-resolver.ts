@@ -11,7 +11,8 @@ import { ProjectService } from '../services/project.service';
  * ensuring the project is fully loaded before navigation completes.
  *
  * Behavior:
- * - If the route parameter `id` is not a valid number → redirects to `/projects`
+ * - If the route parameter `id` is missing, empty, fractional, zero, negative
+ *   or not a number at all → redirects to `/projects` without calling the API
  * - If the API returns an error (404, 403, 500) → redirects to `/projects`
  * - On success → injects the project into the route data as `data['project']`
  *
@@ -28,9 +29,17 @@ import { ProjectService } from '../services/project.service';
 export const projectResolver: ResolveFn<Project> = (route) => {
   const projectService = inject(ProjectService);
   const router = inject(Router);
-  const id = Number(route.paramMap.get('id'));
 
-  if (isNaN(id)) {
+  const raw = route.paramMap.get('id');
+  const id = Number(raw);
+
+  // The raw string is checked before the conversion because Number() is lenient
+  // in ways isNaN alone does not catch. Number(null) and Number('') both yield 0,
+  // so a missing or empty parameter used to pass the guard and reach the API as
+  // getProjectById(0). Number('1.5') yields 1.5, which is not an identifier
+  // either. Number.isInteger rejects both NaN and fractions, and the positivity
+  // check rejects the zero that an absent parameter produces.
+  if (!raw || !Number.isInteger(id) || id <= 0) {
     router.navigate(['/projects']);
     return EMPTY;
   }

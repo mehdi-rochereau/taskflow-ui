@@ -81,13 +81,14 @@ appearance of a complete suite while verifying nothing.
 
 ## Coverage by area
 
-| Area                                                                  | Level     | Status  |
-| --------------------------------------------------------------------- | --------- | ------- |
-| `getFieldErrors`, `passwordMatchValidator`, the two pipes             | unit      | ✅      |
-| `AuthService`, `ProjectService`, `TaskService`                        | unit      | ✅      |
-| `authInterceptor`, `authGuard`, `projectResolver`, `errorInterceptor` | unit      | planned |
-| `LoginComponent`, `ProjectListComponent`, `TaskTableComponent`        | component | planned |
-| Coverage reporting and threshold                                      | tooling   | planned |
+| Area                                                            | Level     | Status  |
+| --------------------------------------------------------------- | --------- | ------- |
+| `getFieldErrors`, `passwordMatchValidator`, the two pipes       | unit      | ✅      |
+| `AuthService`, `ProjectService`, `TaskService`                  | unit      | ✅      |
+| `authInterceptor`, `errorInterceptor`, `credentialsInterceptor` | unit      | ✅      |
+| `authGuard`, `projectResolver`                                  | unit      | ✅      |
+| `LoginComponent`, `ProjectListComponent`, `TaskTableComponent`  | component | planned |
+| Coverage reporting and threshold                                | tooling   | planned |
 
 `NotificationService` is absent from this table on purpose. It wraps
 `MatSnackBar` rather than `HttpClient`, so it exposes no HTTP contract and holds
@@ -98,11 +99,25 @@ test ever needs to assert that a message was shown.
 
 ## Tests written because a defect happened
 
-Two entries so far, and this section is meant to grow.
+Four entries so far, and this section is meant to grow.
 
-`authInterceptor` is the first priority of the suite. A conflict between it and
+`authInterceptor` was the first priority of the suite. A conflict between it and
 `errorInterceptor` on 401 responses reached production once, and the silent
-refresh is the mechanism nobody dares touch without a safety net.
+refresh is the mechanism nobody dares touch without a safety net. A test now
+pins that `errorInterceptor` stays silent on 401, which is precisely what the
+two interceptors disagreed about.
+
+`authInterceptor` excluded auth endpoints with `req.url.includes('/auth')`, a
+substring test that matches anywhere in the URL. A legitimate endpoint such as
+`/api/projects/authors` was therefore treated as an auth endpoint and skipped
+the refresh, leaving the user on a 401 that nothing retried. The exclusion is
+now anchored to the auth base path, and a test covers that exact URL.
+
+`projectResolver` validated its route parameter with `isNaN` alone.
+`Number(null)` and `Number('')` both yield 0, so a missing or empty identifier
+passed the guard and reached the API as `getProjectById(0)`, and `Number('1.5')`
+passed as a fraction. The resolver now rejects anything that is not a positive
+integer, and four tests cover those cases.
 
 `passwordMatchValidator` clears its error on the `confirmPassword` control when
 the fields match again. Two empty fields are equal, so that clearing branch runs
