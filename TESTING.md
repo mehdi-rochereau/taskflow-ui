@@ -84,10 +84,15 @@ appearance of a complete suite while verifying nothing.
 | Area                                                                  | Level     | Status  |
 | --------------------------------------------------------------------- | --------- | ------- |
 | `getFieldErrors`, `passwordMatchValidator`, the two pipes             | unit      | ✅      |
-| `AuthService`, `ProjectService`, `TaskService`                        | unit      | planned |
+| `AuthService`, `ProjectService`, `TaskService`                        | unit      | ✅      |
 | `authInterceptor`, `authGuard`, `projectResolver`, `errorInterceptor` | unit      | planned |
 | `LoginComponent`, `ProjectListComponent`, `TaskTableComponent`        | component | planned |
 | Coverage reporting and threshold                                      | tooling   | planned |
+
+`NotificationService` is absent from this table on purpose. It wraps
+`MatSnackBar` rather than `HttpClient`, so it exposes no HTTP contract and holds
+no state of its own. It will be exercised at the component level if a component
+test ever needs to assert that a message was shown.
 
 ---
 
