@@ -1,4 +1,3 @@
-// src/app/features/auth/register/password-match.validator.spec.ts
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { passwordMatchValidator } from './password-match.validator';
 
