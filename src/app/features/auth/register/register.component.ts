@@ -1,13 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -18,34 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { RegisterRequest } from '../../../core/models/auth.model';
 import { MatIcon } from '@angular/material/icon';
 import { getFieldErrors } from '../../../shared/utils/form-errors';
-
-/**
- * Custom group-level validator that checks whether `password` and `confirmPassword` match.
- * Applies `{ passwordMismatch: true }` directly on the `confirmPassword` control
- * so that `mat-error` can display the error message via `getFieldErrors`.
- * Clears the error when passwords match.
- *
- * @returns A `ValidatorFn` to be applied at the `FormGroup` level
- */
-function passwordMatchValidator(): ValidatorFn {
-  return (group: AbstractControl): ValidationErrors | null => {
-    const password = group.get('password')?.value;
-    const confirm = group.get('confirmPassword')?.value;
-
-    if (password !== confirm) {
-      group.get('confirmPassword')?.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    }
-
-    // Retire l'erreur si les mots de passe correspondent
-    const confirmControl = group.get('confirmPassword');
-    if (confirmControl?.hasError('passwordMismatch')) {
-      confirmControl.setErrors(null);
-    }
-
-    return null;
-  };
-}
+import { passwordMatchValidator } from './password-match.validator';
 
 /**
  * Component handling new user registration via the register form.
