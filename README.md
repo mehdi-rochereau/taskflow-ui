@@ -25,6 +25,7 @@ The application demonstrates modern Angular patterns including Signals, Smart/Du
 component architecture, HTTP interceptors, route guards and resolvers.
 
 For security details, see [SECURITY.md](SECURITY.md).
+For the test strategy, see [TESTING.md](TESTING.md).
 
 ---
 
@@ -267,7 +268,6 @@ export const projectResolver: ResolveFn<Project> = (route) => {
 - [ ] `TaskTableComponent` — add sortable columns
 - [ ] `GET /api/auth/me` — eliminate all client-side session state
 - [ ] i18n — Angular internationalization for UI text
-- [ ] Unit tests — Vitest and the `@angular/build:unit-test` builder are already configured, no spec file written yet
 
 ---
 
@@ -313,6 +313,7 @@ Every push triggers an automated pipeline:
 | Secret scanning      | GitLeaks                   | Full history scan                                       |
 | Code formatting      | Prettier                   | .prettierrc rules                                       |
 | Code quality         | ESLint                     | Angular ESLint rules                                    |
+| Unit tests           | Vitest                     | Blocking, runs before the production build              |
 | Build                | Angular CLI                | Production build                                        |
 | Dependency CVEs      | npm audit                  | Production dependencies, moderate+, blocks the pipeline |
 | Full dependency scan | npm audit                  | All dependencies, moderate+, reported without blocking  |
