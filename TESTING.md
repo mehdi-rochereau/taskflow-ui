@@ -1,6 +1,6 @@
 # Testing Strategy
 
-> 🇫🇷 Une version française suivra avec le rattrapage documentaire.
+> 🇫🇷 [Version française](TESTING.fr.md)
 
 This document states what is tested in this repository, what is not, and why.
 It is written before the tests it describes, so that the plan precedes the work
@@ -40,24 +40,27 @@ production header verification, and they require infrastructure. Possible later,
 once the two levels above exist.
 
 **Coverage as a goal.** A frontend contains a large amount of template and
-boilerplate whose test cost exceeds its value. The threshold, once introduced,
-is set from a measured baseline rather than copied from the API's 95 percent.
+boilerplate whose test cost exceeds its value. The thresholds were set from a
+measured baseline rather than copied from the API's 95 percent. What the figure
+actually measures is stated below.
 
 ---
 
 ## Running the tests
 
 ```bash
-npm test          # single pass, what the CI runs
-npm run test:watch # watch loop for local development
+npm test              # single pass, no coverage, the development loop
+npm run test:watch    # watch loop for local development
+npm run test:coverage # single pass with coverage and thresholds, what the CI runs
 ```
 
 No backend, no database and no Docker are required. `HttpTestingController`
 replaces the network entirely. A suite that needs a backend running is a suite
 that stops being run.
 
-The CI executes `npm test` after ESLint and before the production build. The
-step is blocking.
+The CI executes `npm run test:coverage` after ESLint and before the production
+build. The step is blocking, on a failing test and on coverage below a
+threshold alike.
 
 ---
 
@@ -81,14 +84,14 @@ appearance of a complete suite while verifying nothing.
 
 ## Coverage by area
 
-| Area                                                            | Level     | Status  |
-| --------------------------------------------------------------- | --------- | ------- |
-| `getFieldErrors`, `passwordMatchValidator`, the two pipes       | unit      | ✅      |
-| `AuthService`, `ProjectService`, `TaskService`                  | unit      | ✅      |
-| `authInterceptor`, `errorInterceptor`, `credentialsInterceptor` | unit      | ✅      |
-| `authGuard`, `projectResolver`                                  | unit      | ✅      |
-| `LoginComponent`, `ProjectListComponent`, `TaskTableComponent`  | component | ✅      |
-| Coverage reporting and threshold                                | tooling   | planned |
+| Area                                                            | Level     | Status |
+| --------------------------------------------------------------- | --------- | ------ |
+| `getFieldErrors`, `passwordMatchValidator`, the two pipes       | unit      | ✅     |
+| `AuthService`, `ProjectService`, `TaskService`                  | unit      | ✅     |
+| `authInterceptor`, `errorInterceptor`, `credentialsInterceptor` | unit      | ✅     |
+| `authGuard`, `projectResolver`                                  | unit      | ✅     |
+| `LoginComponent`, `ProjectListComponent`, `TaskTableComponent`  | component | ✅     |
+| Coverage reporting and threshold                                | tooling   | ✅     |
 
 `NotificationService` is absent from this table on purpose. It wraps
 `MatSnackBar` rather than `HttpClient`, so it exposes no HTTP contract and holds
@@ -102,6 +105,46 @@ measure those rather than this one. And the width transition of
 a fresh instance proves that the window width decides the rendered header, but
 driving a resize on a live instance never reached the table under jsdom. That
 mechanism disappears with the planned move to `BreakpointObserver`.
+
+---
+
+## What the coverage figure measures
+
+The baseline measured on 25 October 2026, with ninety tests.
+
+| Metric     | Measured | Threshold |
+| ---------- | -------- | --------- |
+| Statements | 79.48 %  | 78        |
+| Branches   | 81.64 %  | 80        |
+| Functions  | 68.80 %  | 67        |
+| Lines      | 80.66 %  | 79        |
+
+Read that figure for what it is. The v8 provider only reports files that a test
+actually loaded, so a component no spec imports never appears in the report at
+all. The percentage therefore describes how well the code under test is
+covered, not how much of the application is tested. The coverage table above is
+the real inventory, and it is the one to read.
+
+That choice is deliberate. Including every file under `src/app` would drop the
+figure to roughly a quarter by counting at zero the components this strategy
+decided not to test, which punishes a documented decision with a demoralising
+number and measures nothing new.
+
+The functions figure is the lowest of the four, and it is explained rather than
+alarming. `ProjectFormDialogComponent` and `ConfirmDialogComponent` are pulled
+into the report because `ProjectListComponent` imports them, while no test
+exercises them, and the three dialog methods of `ProjectListComponent` itself
+are out of scope for the same reason.
+
+Each threshold sits one to two points under its measured value. A threshold set
+exactly at the baseline fails on the first harmless change, which teaches people
+to raise the bar rather than to fix the gap.
+
+The thresholds live in `vitest.config.ts` because the
+`@angular/build:unit-test` builder exposes coverage measurement but no
+threshold option. The builder loads that file through its `runnerConfig`
+option, and the Angular team explicitly does not support its contents, so it is
+one of the first places to check when an Angular major version lands.
 
 ---
 

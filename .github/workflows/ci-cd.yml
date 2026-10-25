@@ -214,9 +214,13 @@ jobs:
       # default and would hang this job indefinitely, so the single-pass
       # behaviour is wired into the script rather than repeated as a flag here.
       # package.json keeps the watch loop under test:watch for local work.
-      - name: Run unit tests
+      # Runs the suite with coverage measurement and the thresholds declared in
+      # vitest.config.ts. Fails the job on a failing test or on coverage below
+      # a threshold. The local `npm test` stays coverage-free so the inner loop
+      # remains fast; this is the gated variant.
+      - name: Run unit tests with coverage thresholds
         id: test
-        run: npm test
+        run: npm run test:coverage
 
       # ── Build ────────────────────────────────────────────
       # Compiles the Angular application for production.
