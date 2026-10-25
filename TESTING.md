@@ -1,6 +1,6 @@
 # Testing Strategy
 
-> 🇫🇷 Une version française suivra avec le rattrapage documentaire.
+> 🇫🇷 [Version française](TESTING.fr.md)
 
 This document states what is tested in this repository, what is not, and why.
 It is written before the tests it describes, so that the plan precedes the work
